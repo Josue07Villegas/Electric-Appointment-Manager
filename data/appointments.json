@@ -1,0 +1,68 @@
+[
+  {
+    "id": "demo-001",
+    "folio": "ELEC-1001",
+    "createdAt": "2026-09-22T14:00:00.000Z",
+    "scheduledAt": "2026-09-23T16:00:00.000Z",
+    "durationMin": 60,
+    "clientName": "Cliente Demostración",
+    "phone": "+52 55 0000 0001",
+    "email": "cliente@example.invalid",
+    "address": "Zona Centro, Ciudad Demo",
+    "propertyType": "Casa",
+    "requestedService": "Diagnóstico eléctrico",
+    "description": "Al conectar el microondas se baja el interruptor del área de la cocina.",
+    "riskSignals": {
+      "sparks": false,
+      "smoke": false,
+      "burningSmell": false,
+      "totalPowerLoss": false
+    },
+    "classification": {
+      "serviceType": "Diagnóstico",
+      "priority": "Alta",
+      "specialty": "Residencial",
+      "estimatedDuration": "60 minutos",
+      "requiresReview": false,
+      "confidence": 0.91,
+      "source": "demo"
+    },
+    "status": "Confirmada",
+    "technician": "Técnico principal",
+    "notes": "Revisar carga del circuito de cocina.",
+    "completedAt": null
+  },
+  {
+    "id": "demo-002",
+    "folio": "ELEC-1002",
+    "createdAt": "2026-09-22T15:00:00.000Z",
+    "scheduledAt": "2026-09-24T18:00:00.000Z",
+    "durationMin": 90,
+    "clientName": "Comercio Demostración",
+    "phone": "+52 55 0000 0002",
+    "email": "comercio@example.invalid",
+    "address": "Zona Comercial, Ciudad Demo",
+    "propertyType": "Comercio",
+    "requestedService": "Instalación",
+    "description": "Instalación de cuatro luminarias y revisión de dos contactos.",
+    "riskSignals": {
+      "sparks": false,
+      "smoke": false,
+      "burningSmell": false,
+      "totalPowerLoss": false
+    },
+    "classification": {
+      "serviceType": "Instalación",
+      "priority": "Normal",
+      "specialty": "Iluminación",
+      "estimatedDuration": "90 minutos",
+      "requiresReview": false,
+      "confidence": 0.94,
+      "source": "demo"
+    },
+    "status": "Pendiente",
+    "technician": "Técnico principal",
+    "notes": "",
+    "completedAt": null
+  }
+]
