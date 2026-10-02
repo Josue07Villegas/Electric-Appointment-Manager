@@ -1,41 +1,105 @@
+import { createClient, type Client } from "@libsql/client";
+import { neon } from "@neondatabase/serverless";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { Appointment, DashboardStats } from "@/lib/types";
 import { PRIORITIES, STATUSES } from "@/lib/types";
 
 const DEFAULT_DATA_FILE = path.join(process.cwd(), "data", "appointments.json");
-const DATA_FILE = process.env.DATA_FILE
-  ? path.resolve(/* turbopackIgnore: true */ process.env.DATA_FILE)
-  : DEFAULT_DATA_FILE;
+const DEFAULT_SQLITE_FILE = path.join(process.cwd(), "data", "electroagenda.db");
+const DATA_FILE = process.env.DATA_FILE ? path.resolve(process.env.DATA_FILE) : DEFAULT_DATA_FILE;
+const SQLITE_FILE = process.env.SQLITE_DB_PATH ? path.resolve(process.env.SQLITE_DB_PATH) : DEFAULT_SQLITE_FILE;
+const DATABASE_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.NEON_DATABASE_URL;
 const BUSINESS_START = 9;
 const BUSINESS_END = 19;
 const SLOT_STEP_MIN = 30;
-let writeQueue = Promise.resolve();
+const TABLE_SQL = `
+  CREATE TABLE IF NOT EXISTS appointments (
+    id TEXT PRIMARY KEY,
+    folio TEXT NOT NULL UNIQUE,
+    scheduled_at TEXT NOT NULL,
+    status TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    payload TEXT NOT NULL
+  )
+`;
 
-async function ensureDataFile() {
-  await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
+let sqlite: Client | null = null;
+let postgres: ReturnType<typeof neon> | null = null;
+let initialized = false;
+let initialization: Promise<void> | null = null;
+
+function getSqlite() {
+  if (!sqlite) sqlite = createClient({ url: `file:${SQLITE_FILE}` });
+  return sqlite;
+}
+
+function getPostgres() {
+  if (!postgres) postgres = neon(DATABASE_URL as string);
+  return postgres;
+}
+
+async function pgQuery<T extends Record<string, unknown> = Record<string, unknown>>(query: string, values: unknown[] = []) {
+  return getPostgres().query(query, values) as Promise<T[]>;
+}
+
+async function seedFromJson() {
   try {
-    await fs.access(DATA_FILE);
+    const raw = await fs.readFile(DATA_FILE, "utf8");
+    const value: unknown = JSON.parse(raw || "[]");
+    return Array.isArray(value) ? value as Appointment[] : [];
   } catch {
-    await fs.writeFile(DATA_FILE, "[]\n", "utf8");
+    return [];
   }
 }
 
+async function ensureDatabase() {
+  if (initialized) return;
+  if (initialization) return initialization;
+  initialization = (async () => {
+    if (DATABASE_URL) {
+      await pgQuery("CREATE TABLE IF NOT EXISTS appointments (id TEXT PRIMARY KEY, folio TEXT NOT NULL UNIQUE, scheduled_at TEXT NOT NULL, status TEXT NOT NULL, created_at TEXT NOT NULL, payload TEXT NOT NULL)");
+      const count = await pgQuery<{ count: number }>("SELECT COUNT(*)::int AS count FROM appointments");
+      initialized = true;
+      if (Number(count[0]?.count || 0) === 0) await writeAppointments(await seedFromJson());
+    } else {
+      await fs.mkdir(path.dirname(SQLITE_FILE), { recursive: true });
+      await getSqlite().execute(TABLE_SQL);
+      const count = await getSqlite().execute("SELECT COUNT(*) AS count FROM appointments");
+      initialized = true;
+      if (Number(count.rows[0]?.count || 0) === 0) await writeAppointments(await seedFromJson());
+    }
+  })();
+  await initialization;
+}
+
 export async function readAppointments(): Promise<Appointment[]> {
-  await ensureDataFile();
-  const raw = await fs.readFile(/* turbopackIgnore: true */ DATA_FILE, "utf8");
-  const value: unknown = JSON.parse(raw || "[]");
-  return Array.isArray(value) ? (value as Appointment[]) : [];
+  await ensureDatabase();
+  if (DATABASE_URL) {
+    const rows = await pgQuery<{ payload: string }>("SELECT payload FROM appointments ORDER BY scheduled_at ASC");
+    return rows.map((row) => JSON.parse(String(row.payload)) as Appointment);
+  }
+  const result = await getSqlite().execute("SELECT payload FROM appointments ORDER BY scheduled_at ASC");
+  return result.rows.map((row) => JSON.parse(String(row.payload)) as Appointment);
 }
 
 export async function writeAppointments(appointments: Appointment[]) {
-  writeQueue = writeQueue.then(async () => {
-    await ensureDataFile();
-    const temporary = `${DATA_FILE}.${process.pid}.tmp`;
-    await fs.writeFile(temporary, `${JSON.stringify(appointments, null, 2)}\n`, "utf8");
-    await fs.rename(temporary, DATA_FILE);
-  });
-  await writeQueue;
+  await ensureDatabase();
+  if (DATABASE_URL) {
+    for (const appointment of appointments) {
+      await pgQuery(
+        "INSERT INTO appointments (id, folio, scheduled_at, status, created_at, payload) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (id) DO UPDATE SET folio = EXCLUDED.folio, scheduled_at = EXCLUDED.scheduled_at, status = EXCLUDED.status, payload = EXCLUDED.payload",
+        [appointment.id, appointment.folio, appointment.scheduledAt, appointment.status, appointment.createdAt, JSON.stringify(appointment)],
+      );
+    }
+    return;
+  }
+  for (const appointment of appointments) {
+    await getSqlite().execute({
+      sql: "INSERT INTO appointments (id, folio, scheduled_at, status, created_at, payload) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET folio = excluded.folio, scheduled_at = excluded.scheduled_at, status = excluded.status, payload = excluded.payload",
+      args: [appointment.id, appointment.folio, appointment.scheduledAt, appointment.status, appointment.createdAt, JSON.stringify(appointment)],
+    });
+  }
 }
 
 export function createFolio(appointments: Appointment[]) {

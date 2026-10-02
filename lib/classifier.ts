@@ -1,7 +1,13 @@
 import type { AppointmentInput, Classification, Priority } from "@/lib/types";
 
-const JEV_API_URL = process.env.JEV_API_URL || "https://api.typesafe.ai/v1/systemone";
-const JEV_MODEL = process.env.JEV_MODEL || "jev-latest";
+const gatewayKey = process.env.AI_GATEWAY_API_KEY;
+const apiKey = gatewayKey || process.env.JEV_API_KEY;
+const JEV_API_URL = process.env.JEV_API_URL || (
+  gatewayKey
+    ? "https://ai-gateway.vercel.sh/typesafe/v1/systemone"
+    : "https://api.typesafe.ai/v1/systemone"
+);
+const JEV_MODEL = process.env.JEV_MODEL || (gatewayKey ? "typesafe-ai/jev" : "jev-latest");
 
 function hasSafetyRisk(signals: AppointmentInput["riskSignals"]) {
   return Boolean(signals.sparks || signals.smoke || signals.burningSmell);
@@ -52,7 +58,6 @@ type JevResponse = {
 };
 
 export async function classifyAppointment(input: AppointmentInput): Promise<Classification> {
-  const apiKey = process.env.JEV_API_KEY;
   if (!apiKey) return localClassification(input);
   const body = {
     model: JEV_MODEL,
@@ -157,6 +162,6 @@ export function parseDuration(classification: Classification, requested?: number
 }
 
 export const jevConfig = {
-  enabled: Boolean(process.env.JEV_API_KEY),
+  enabled: Boolean(apiKey),
   model: JEV_MODEL,
 };

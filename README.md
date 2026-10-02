@@ -79,14 +79,14 @@ data/appointments.json  Datos de demostración
 
 Requisitos:
 
-- Node.js 20.9 o superior.
-- npm.
+- Bun 1.3 o superior.
+- Node.js 20.9 o superior (requerido por Next.js).
 
 ```bash
 git clone git@github.com:Josue07Villegas/Electric-Appointment-Manager.git
 cd Electric-Appointment-Manager
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 Abre las siguientes direcciones:
@@ -94,30 +94,29 @@ Abre las siguientes direcciones:
 - Mesa del técnico: <http://127.0.0.1:4173>
 - Portal del cliente: <http://127.0.0.1:4173/solicitar>
 
-## Configuración de Jev
+## Configuración de Jev mediante Vercel AI Gateway
 
-La aplicación funciona sin credenciales mediante el clasificador local. Para utilizar Jev, copia la plantilla y agrega la clave privada:
+La aplicación funciona sin credenciales mediante el clasificador local. Para utilizar Jev a través de Vercel AI Gateway, copia la plantilla y agrega tu clave:
 
 ```bash
 cp .env.example .env.local
 ```
 
 ```env
-JEV_API_KEY=tu_clave_privada
-JEV_MODEL=jev-latest
-JEV_API_URL=https://api.typesafe.ai/v1/systemone
+AI_GATEWAY_API_KEY=tu_clave_de_vercel
+JEV_MODEL=typesafe-ai/jev
 ```
 
-La clave se utiliza únicamente en el servidor y no se entrega al navegador. `.env.local` está excluido de Git.
+El gateway usa el modelo `typesafe-ai/jev` y la ruta TypeSafe-compatible de Vercel. La clave se utiliza únicamente en el servidor y no se entrega al navegador. `.env.local` está excluido de Git.
 
 ## Comandos
 
 | Comando | Función |
 | --- | --- |
-| `npm run dev` | Inicia el entorno de desarrollo en el puerto 4173 |
-| `npm run typecheck` | Valida TypeScript sin generar archivos |
-| `npm run build` | Crea la versión optimizada de producción |
-| `npm start` | Ejecuta la compilación de producción |
+| `bun run dev` | Inicia el entorno de desarrollo en el puerto 4173 |
+| `bun run typecheck` | Valida TypeScript sin generar archivos |
+| `bun run build` | Crea la versión optimizada de producción |
+| `bun run start` | Ejecuta la compilación de producción |
 
 ## API interna
 
@@ -132,7 +131,25 @@ La clave se utiliza únicamente en el servidor y no se entrega al navegador. `.e
 
 ## Persistencia y escalabilidad
 
-El prototipo guarda las órdenes en `data/appointments.json`, suficiente para demostrar la operación de un técnico. Una versión para producción y varios técnicos debería incorporar:
+El proyecto usa una capa de persistencia dual:
+
+- En local, `@libsql/client` guarda las órdenes en SQLite en `data/electroagenda.db`.
+- En Vercel, si existe `DATABASE_URL`, `POSTGRES_URL` o `NEON_DATABASE_URL`, usa Postgres mediante Neon.
+- Si la base está vacía, importa automáticamente las órdenes de `data/appointments.json` una sola vez.
+
+Para desarrollo local:
+
+```env
+SQLITE_DB_PATH=data/electroagenda.db
+```
+
+Para Vercel, crea una base Postgres/Neon y configura:
+
+```env
+DATABASE_URL=postgresql://usuario:password@host/base?sslmode=require
+```
+
+La base se inicializa automáticamente al recibir la primera solicitud. El archivo SQLite local está excluido de Git. Para una versión con varios técnicos todavía conviene incorporar:
 
 - Base de datos transaccional.
 - Autenticación y perfiles por rol.
@@ -146,8 +163,8 @@ El prototipo guarda las órdenes en `data/appointments.json`, suficiente para de
 Antes de publicar cambios ejecuta:
 
 ```bash
-npm run typecheck
-npm run build
+bun run typecheck
+bun run build
 ```
 
 ## Autor

@@ -13,6 +13,10 @@ export function validateAppointmentInput(body: Record<string, unknown>, partial 
   }
   if (body.scheduledAt && Number.isNaN(new Date(String(body.scheduledAt)).getTime())) return "La fecha de la cita no es válida";
   if (body.status && !STATUSES.includes(body.status as AppointmentStatus)) return "El estado no es válido";
+  if (body.durationMin !== undefined) {
+    const duration = Number(body.durationMin);
+    if (![30, 60, 90, 120].includes(duration)) return "La duración de la cita no es válida";
+  }
   return null;
 }
 

@@ -14,6 +14,7 @@ tsconfig.tsbuildinfo
 
 # Datos locales de desarrollo
 data/appointments.local.json
+data/electroagenda.db
 
 # Registros
 npm-debug.log*
