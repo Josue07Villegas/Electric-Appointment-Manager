@@ -61,7 +61,7 @@ async function ensureDatabase() {
   initialization = (async () => {
     if (DATABASE_URL) {
       await pgQuery("CREATE TABLE IF NOT EXISTS appointments (id TEXT PRIMARY KEY, folio TEXT NOT NULL UNIQUE, scheduled_at TIMESTAMPTZ, duration_min INTEGER, status TEXT NOT NULL, created_at TEXT NOT NULL, payload TEXT NOT NULL)");
-      await pgQuery("DO $$ BEGIN IF (SELECT data_type FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'appointments' AND column_name = 'scheduled_at') = 'text' THEN ALTER TABLE appointments ALTER COLUMN scheduled_at TYPE TIMESTAMPTZ USING NULLIF(scheduled_at, '')::timestamptz; END IF; END $$");
+      await pgQuery("DO $$ BEGIN IF (SELECT data_type FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'appointments' AND column_name = 'scheduled_at') = 'text' THEN ALTER TABLE appointments ALTER COLUMN scheduled_at DROP DEFAULT; ALTER TABLE appointments ALTER COLUMN scheduled_at DROP NOT NULL; ALTER TABLE appointments ALTER COLUMN scheduled_at TYPE TIMESTAMPTZ USING NULLIF(scheduled_at, '')::timestamptz; END IF; END $$");
       await pgQuery("ALTER TABLE appointments ADD COLUMN IF NOT EXISTS duration_min INTEGER");
       await pgQuery("UPDATE appointments SET duration_min = (payload::jsonb ->> 'durationMin')::integer WHERE duration_min IS NULL AND payload::jsonb ->> 'durationMin' IS NOT NULL");
       await pgQuery("CREATE EXTENSION IF NOT EXISTS btree_gist");
