@@ -180,9 +180,12 @@ input, select, textarea { color: var(--ink); }
 .drawer-grid strong { font-size: 11px; line-height: 1.45; }
 .drawer-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 28px; }
 .drawer-controls select { grid-column: 1 / -1; height: 43px; padding: 0 10px; border: 1px solid var(--ink); background: white; }
+.drawer-controls label { grid-column: 1 / -1; display: grid; gap: 5px; color: var(--muted); font-family: "Courier New", monospace; font-size: 9px; letter-spacing: .06em; text-transform: uppercase; }
+.drawer-controls input, .drawer-controls label select { height: 43px; padding: 0 10px; border: 1px solid var(--ink); background: white; color: var(--ink); font: 12px Arial, sans-serif; letter-spacing: normal; text-transform: none; }
 .drawer-controls button, .submit-order { min-height: 44px; border: 1px solid var(--ink); background: var(--ink); color: white; font-size: 10px; font-weight: 800; }
 .drawer-controls button.secondary { background: transparent; color: var(--ink); }
 .drawer-controls button:disabled { opacity: .5; }
+.session-exit { border: 0; background: transparent; color: var(--muted); font-size: 10px; font-weight: 700; }
 .order-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 28px; }
 .order-form label { color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
 .order-form label.wide, .order-form fieldset, .submit-order { grid-column: 1 / -1; }

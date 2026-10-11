@@ -1,172 +1,86 @@
 # ElectroAgenda
 
-Sistema de citas y despacho para servicios eléctricos, construido con **Next.js** y preparado para operar inicialmente con un solo técnico sin cerrar el camino a una futura cuadrilla.
+Plataforma web para recibir solicitudes de servicios eléctricos, priorizarlas y administrar la agenda de un técnico principal. El cliente indica sus preferencias; el personal autorizado estima la duración, asigna el horario y confirma cada cita manualmente.
 
-El proyecto combina un portal de reservaciones para clientes, una mesa de control para el técnico y un motor de clasificación que puede trabajar con la API de **Jev** o con reglas locales de respaldo.
+## Flujo de atención
 
-## Problema que resuelve
+1. El cliente envía sus datos, descripción del servicio y hasta tres preferencias de fecha y hora. Enviar la solicitud no reserva un espacio ni confirma una cita.
+2. JEV mediante Vercel AI Gateway clasifica únicamente el tipo de servicio y la prioridad. Si JEV no está configurado o no responde, se usa el clasificador local con los mismos campos.
+3. Las solicitudes pendientes se muestran ordenadas por prioridad y después por fecha de recepción.
+4. El personal inicia sesión, define duración y horario y confirma la cita. El servidor impide traslapes y limita la agenda a lunes a sábado, de 9:00 a 19:00, hora de Monterrey.
 
-Los servicios eléctricos suelen recibirse por llamadas o mensajes dispersos. Esto provoca horarios duplicados, poca información antes de la visita y dificultad para distinguir una instalación normal de una posible emergencia.
+La clasificación es información de apoyo. El personal conserva la decisión de programación. JEV no recomienda especialidades ni estima duraciones.
 
-ElectroAgenda centraliza ese proceso:
+## Funciones
 
-1. El cliente describe la falla y selecciona un horario disponible.
-2. El sistema evita cruces con otras visitas.
-3. Jev —o el clasificador local— determina servicio, prioridad y especialidad.
-4. El técnico recibe la orden en una mesa de despacho y actualiza su estado.
+- Portal público adaptable a celular y escritorio, sin cuentas de cliente.
+- Registro de contacto, inmueble, ubicación, descripción, señales observadas y hasta tres preferencias de horario.
+- Bandeja privada de despacho, archivo de solicitudes, filtros, estados y reclasificación manual.
+- Estimación de duración y asignación definitiva de fecha y hora por el personal.
+- Agenda de un técnico; los conflictos se verifican en la aplicación y con una restricción de base de datos para evitar confirmaciones simultáneas traslapadas.
+- Acceso de personal con Auth.js Credentials. Se configura una credencial compartida mediante variables de entorno.
+- PostgreSQL mediante Neon en despliegue; SQLite en desarrollo local. Los datos de demostración JSON se importan si la base está vacía.
 
-## Funcionalidades
+No se incluyen cuentas de cliente, notificaciones automáticas, pagos, facturación, varios técnicos ni aplicaciones móviles nativas.
 
-### Portal del cliente
+## Requisitos y desarrollo local
 
-- Consulta de horarios disponibles en tiempo real.
-- Captura de contacto, inmueble, ubicación y descripción del problema.
-- Registro de señales de riesgo: chispas, humo, olor a quemado o pérdida total de energía.
-- Generación inmediata de folio.
-- Diseño adaptable a computadora y celular.
+- Node.js 20.9 o superior.
+- pnpm, Bun o npm.
 
-### Mesa de despacho
+```bash
+pnpm install --frozen-lockfile
+pnpm dev
+```
 
-- Ruta del día y próxima orden destacada.
-- Indicadores de visitas, prioridades, revisiones y cierres.
-- Bandeja de triaje y archivo completo de órdenes.
-- Búsqueda y filtros por estado o prioridad.
-- Creación manual de órdenes.
-- Estados: `Pendiente`, `Confirmada`, `En camino`, `En servicio`, `Completada` y `Cancelada`.
-- Reclasificación bajo demanda.
+La aplicación queda disponible en `http://localhost:4173`; el formulario público está en `/solicitar` y el despacho en `/`.
 
-### Clasificación inteligente
+## Variables de entorno
 
-- Tipo de servicio.
-- Nivel de prioridad.
-- Especialidad eléctrica sugerida.
-- Duración estimada.
-- Indicador de revisión humana.
-- Respaldo local cuando no existe una clave de Jev.
+Copia `.env.example` a `.env.local` y configura:
 
-> [!IMPORTANT]
-> La clasificación apoya la decisión del técnico, pero no sustituye una evaluación profesional. Humo, chispas u olor a quemado fuerzan prioridad crítica y revisión humana, incluso si el servicio externo devuelve otra clasificación.
-
-## Tecnologías
-
-| Capa | Tecnología |
+| Variable | Uso |
 | --- | --- |
-| Aplicación | Next.js 16 · App Router |
-| Interfaz | React · TypeScript · CSS |
-| API interna | Route Handlers de Next.js |
-| Inteligencia | API de Jev + clasificador local |
-| Persistencia del prototipo | Archivo JSON |
+| `AUTH_SECRET` | Secreto aleatorio de Auth.js. Genera uno largo y privado para cada entorno. |
+| `STAFF_EMAIL` | Correo para iniciar sesión en el despacho. |
+| `STAFF_PASSWORD` | Contraseña privada para esa cuenta compartida. |
+| `AI_GATEWAY_API_KEY` | Clave del servidor para Vercel AI Gateway; sin ella funciona el clasificador local. |
+| `JEV_MODEL` | Modelo JEV, por defecto `typesafe-ai/jev`. |
+| `DATABASE_URL` | Cadena PostgreSQL de Neon para Vercel. |
+| `SQLITE_DB_PATH` | Ruta SQLite de desarrollo; por defecto `data/electroagenda.db`. |
 
-## Arquitectura
+Configura las variables privadas en la configuración del proyecto de Vercel. No incluyas secretos en Git. Las credenciales Auth.js son compartidas por el personal en este MVP y deben establecerse antes de publicar.
 
-```text
-Cliente ──► /solicitar ──► API de citas ──► Agenda JSON
-                                │
-                                ├──► Validación de disponibilidad
-                                └──► Jev / clasificador local
+## Persistencia
 
-Técnico ──► Mesa de despacho ──► Estados, filtros y reclasificación
-```
+El almacén conserva la estructura de solicitudes existente y agrega preferencias, duración y validación de traslapes. La tabla se inicializa en la primera solicitud. En PostgreSQL se instala `btree_gist` y se crea una restricción de exclusión temporal; en SQLite se crean triggers equivalentes. Los registros existentes se normalizan al leerlos y se conserva su fecha confirmada.
 
-```text
-app/                    Páginas y rutas del servidor
-components/             Interfaz del despacho y reservaciones
-lib/                    Reglas, clasificación y almacenamiento
-data/appointments.json  Datos de demostración
-```
+## Contenedor Docker
 
-## Instalación
-
-Requisitos:
-
-- Bun 1.3 o superior.
-- Node.js 20.9 o superior (requerido por Next.js).
+La imagen usa la salida `standalone` de Next.js e instala dependencias durante la construcción:
 
 ```bash
-git clone git@github.com:Josue07Villegas/Electric-Appointment-Manager.git
-cd Electric-Appointment-Manager
-bun install
-bun run dev
+docker build -t electroagenda .
+docker run --rm -p 3000:3000 --env-file .env.local electroagenda
 ```
 
-Abre las siguientes direcciones:
+Para el contenedor se requiere PostgreSQL accesible desde ese entorno. Neon funciona como base administrada; el archivo SQLite local no es almacenamiento persistente adecuado para contenedores efímeros.
 
-- Mesa del técnico: <http://127.0.0.1:4173>
-- Portal del cliente: <http://127.0.0.1:4173/solicitar>
+## Rutas API
 
-## Configuración de Jev mediante Vercel AI Gateway
+| Método | Ruta | Acceso | Uso |
+| --- | --- | --- | --- |
+| `GET` | `/api/availability` | Público | Horarios de referencia para preferencias del cliente. |
+| `POST` | `/api/appointments` | Público | Crear solicitud pendiente. |
+| `GET` | `/api/appointments` | Personal | Consultar y filtrar solicitudes. |
+| `GET`, `PATCH` | `/api/appointments/:id` | Personal | Consultar o administrar solicitud y cita. |
+| `POST` | `/api/appointments/:id/reclassify` | Personal | Repetir clasificación de tipo y prioridad. |
+| `GET` | `/api/stats`, `/api/config` | Personal | Indicadores operativos y configuración visible al despacho. |
+| `GET`, `POST` | `/api/auth/*` | Auth.js | Inicio y cierre de sesión. |
 
-La aplicación funciona sin credenciales mediante el clasificador local. Para utilizar Jev a través de Vercel AI Gateway, copia la plantilla y agrega tu clave:
+## Comprobaciones locales
 
 ```bash
-cp .env.example .env.local
+pnpm typecheck
+pnpm build
 ```
-
-```env
-AI_GATEWAY_API_KEY=tu_clave_de_vercel
-JEV_MODEL=typesafe-ai/jev
-```
-
-El gateway usa el modelo `typesafe-ai/jev` y la ruta TypeSafe-compatible de Vercel. La clave se utiliza únicamente en el servidor y no se entrega al navegador. `.env.local` está excluido de Git.
-
-## Comandos
-
-| Comando | Función |
-| --- | --- |
-| `bun run dev` | Inicia el entorno de desarrollo en el puerto 4173 |
-| `bun run typecheck` | Valida TypeScript sin generar archivos |
-| `bun run build` | Crea la versión optimizada de producción |
-| `bun run start` | Ejecuta la compilación de producción |
-
-## API interna
-
-| Método | Ruta | Uso |
-| --- | --- | --- |
-| `GET / POST` | `/api/appointments` | Consultar o crear órdenes |
-| `GET / PATCH` | `/api/appointments/:id` | Consultar o actualizar una orden |
-| `POST` | `/api/appointments/:id/reclassify` | Volver a ejecutar el triaje |
-| `GET` | `/api/availability` | Consultar horarios libres |
-| `GET` | `/api/stats` | Obtener indicadores operativos |
-| `GET` | `/api/config` | Consultar configuración pública |
-
-## Persistencia y escalabilidad
-
-El proyecto usa una capa de persistencia dual:
-
-- En local, `@libsql/client` guarda las órdenes en SQLite en `data/electroagenda.db`.
-- En Vercel, si existe `DATABASE_URL`, `POSTGRES_URL` o `NEON_DATABASE_URL`, usa Postgres mediante Neon.
-- Si la base está vacía, importa automáticamente las órdenes de `data/appointments.json` una sola vez.
-
-Para desarrollo local:
-
-```env
-SQLITE_DB_PATH=data/electroagenda.db
-```
-
-Para Vercel, crea una base Postgres/Neon y configura:
-
-```env
-DATABASE_URL=postgresql://usuario:password@host/base?sslmode=require
-```
-
-La base se inicializa automáticamente al recibir la primera solicitud. El archivo SQLite local está excluido de Git. Para una versión con varios técnicos todavía conviene incorporar:
-
-- Base de datos transaccional.
-- Autenticación y perfiles por rol.
-- Calendario individual por técnico.
-- Asignación automática por zona, disponibilidad y especialidad.
-- Recordatorios por correo o WhatsApp.
-- Historial de cambios y respaldos.
-
-## Validación
-
-Antes de publicar cambios ejecuta:
-
-```bash
-bun run typecheck
-bun run build
-```
-
-## Autor
-
-Proyecto de innovación desarrollado por [Josue07Villegas](https://github.com/Josue07Villegas).

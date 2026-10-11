@@ -14,10 +14,6 @@ export type RiskSignals = {
 export type Classification = {
   serviceType: string;
   priority: Priority;
-  specialty: string;
-  estimatedDuration: string;
-  requiresReview: boolean;
-  confidence: number;
   source: string;
   model?: string;
   note?: string;
@@ -28,8 +24,9 @@ export type Appointment = {
   folio: string;
   createdAt: string;
   updatedAt?: string;
-  scheduledAt: string;
-  durationMin: number;
+  scheduledAt: string | null;
+  durationMin: number | null;
+  preferredSlots: string[];
   clientName: string;
   phone: string;
   email: string;
@@ -47,8 +44,8 @@ export type Appointment = {
 
 export type AppointmentInput = Pick<
   Appointment,
-  "clientName" | "phone" | "email" | "address" | "propertyType" | "requestedService" | "description" | "scheduledAt" | "riskSignals" | "notes"
-> & { durationMin?: number };
+  "clientName" | "phone" | "email" | "address" | "propertyType" | "requestedService" | "description" | "riskSignals" | "notes" | "preferredSlots"
+>;
 
 export type DashboardStats = {
   total: number;

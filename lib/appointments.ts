@@ -6,12 +6,17 @@ export function normalizeText(value: unknown, maxLength = 500) {
 }
 
 export function validateAppointmentInput(body: Record<string, unknown>, partial = false) {
-  const required = ["clientName", "phone", "address", "propertyType", "description", "scheduledAt"];
+  const required = ["clientName", "phone", "address", "propertyType", "description"];
   if (!partial) {
     const missing = required.filter((field) => !normalizeText(body[field]));
     if (missing.length) return `Faltan campos obligatorios: ${missing.join(", ")}`;
+    if (!body.scheduledAt && (!Array.isArray(body.preferredSlots) || body.preferredSlots.length < 1)) return "Indica al menos una preferencia de horario";
   }
-  if (body.scheduledAt && Number.isNaN(new Date(String(body.scheduledAt)).getTime())) return "La fecha de la cita no es válida";
+  if (body.preferredSlots !== undefined) {
+    if (!Array.isArray(body.preferredSlots) || body.preferredSlots.length < 1 || body.preferredSlots.length > 3) return "Indica de una a tres preferencias de horario";
+    if (body.preferredSlots.some((value) => typeof value !== "string" || Number.isNaN(new Date(value).getTime()))) return "Una preferencia de horario no es válida";
+  }
+  if (body.scheduledAt !== undefined && body.scheduledAt !== null && Number.isNaN(new Date(String(body.scheduledAt)).getTime())) return "La fecha de la cita no es válida";
   if (body.status && !STATUSES.includes(body.status as AppointmentStatus)) return "El estado no es válido";
   if (body.durationMin !== undefined) {
     const duration = Number(body.durationMin);
@@ -30,7 +35,7 @@ export function sanitizeAppointment(body: Record<string, unknown>): AppointmentI
     propertyType: normalizeText(body.propertyType, 50),
     requestedService: normalizeText(body.requestedService || "Diagnóstico eléctrico", 80),
     description: normalizeText(body.description, 1200),
-    scheduledAt: new Date(String(body.scheduledAt)).toISOString(),
+    preferredSlots: Array.isArray(body.preferredSlots) ? body.preferredSlots.slice(0, 3).map((value) => new Date(String(value)).toISOString()) : [],
     riskSignals: {
       sparks: Boolean(risk.sparks),
       smoke: Boolean(risk.smoke),
@@ -38,6 +43,5 @@ export function sanitizeAppointment(body: Record<string, unknown>): AppointmentI
       totalPowerLoss: Boolean(risk.totalPowerLoss),
     },
     notes: normalizeText(body.notes, 1000),
-    durationMin: Number(body.durationMin) || undefined,
   };
 }
