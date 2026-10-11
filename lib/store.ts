@@ -67,7 +67,7 @@ async function ensureDatabase() {
       await pgQuery("DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'appointments_scheduled_no_overlap') THEN ALTER TABLE appointments ADD CONSTRAINT appointments_scheduled_no_overlap EXCLUDE USING gist (tstzrange(scheduled_at::timestamptz, scheduled_at::timestamptz + make_interval(mins => duration_min), '[)') WITH &&) WHERE (status IN ('Confirmada', 'En camino', 'En servicio') AND scheduled_at <> '' AND duration_min IS NOT NULL); END IF; END $$");
       const count = await pgQuery<{ count: number }>("SELECT COUNT(*)::int AS count FROM appointments");
       initialized = true;
-      if (Number(count[0]?.count || 0) === 0) await writeAppointments(await seedFromJson());
+      if (process.env.NODE_ENV !== "production" && Number(count[0]?.count || 0) === 0) await writeAppointments(await seedFromJson());
     } else {
       await fs.mkdir(path.dirname(SQLITE_FILE), { recursive: true });
       await getSqlite().execute(TABLE_SQL);
@@ -78,7 +78,7 @@ async function ensureDatabase() {
       await getSqlite().execute(`CREATE TRIGGER IF NOT EXISTS appointments_scheduled_no_overlap_update BEFORE UPDATE ON appointments WHEN NEW.status IN ('Confirmada', 'En camino', 'En servicio') AND NEW.scheduled_at <> '' AND NEW.duration_min IS NOT NULL AND EXISTS (SELECT 1 FROM appointments other WHERE other.id <> NEW.id AND other.status IN ('Confirmada', 'En camino', 'En servicio') AND other.scheduled_at <> '' AND other.duration_min IS NOT NULL AND julianday(NEW.scheduled_at) < julianday(other.scheduled_at, '+' || other.duration_min || ' minutes') AND julianday(NEW.scheduled_at, '+' || NEW.duration_min || ' minutes') > julianday(other.scheduled_at)) BEGIN SELECT RAISE(ABORT, 'appointment time conflict'); END`);
       const count = await getSqlite().execute("SELECT COUNT(*) AS count FROM appointments");
       initialized = true;
-      if (Number(count.rows[0]?.count || 0) === 0) await writeAppointments(await seedFromJson());
+      if (process.env.NODE_ENV !== "production" && Number(count.rows[0]?.count || 0) === 0) await writeAppointments(await seedFromJson());
     }
   })();
   await initialization;

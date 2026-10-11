@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { normalizeText, validateAppointmentInput } from "@/lib/appointments";
 import { conflictsWithExisting, isWithinBusinessHours, readAppointments, writeAppointments } from "@/lib/store";
 import type { AppointmentStatus } from "@/lib/types";
-import { auth } from "@/auth";
+import { isAuthorizedStaff } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 type Context = { params: Promise<{ id: string }> };
 
 export async function GET(_: NextRequest, context: Context) {
-  if (!(await auth())) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  if (!(await isAuthorizedStaff())) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   const { id } = await context.params;
   const appointment = (await readAppointments()).find((item) => item.id === id);
   return appointment
@@ -17,7 +17,7 @@ export async function GET(_: NextRequest, context: Context) {
 }
 
 export async function PATCH(request: NextRequest, context: Context) {
-  if (!(await auth())) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  if (!(await isAuthorizedStaff())) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   const { id } = await context.params;
   const body = await request.json() as Record<string, unknown>;
   const validation = validateAppointmentInput(body, true);

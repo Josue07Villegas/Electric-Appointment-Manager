@@ -18,8 +18,8 @@ La clasificación es información de apoyo. El personal conserva la decisión de
 - Bandeja privada de despacho, archivo de solicitudes, filtros, estados y reclasificación manual.
 - Estimación de duración y asignación definitiva de fecha y hora por el personal.
 - Agenda de un técnico; los conflictos se verifican en la aplicación y con una restricción de base de datos para evitar confirmaciones simultáneas traslapadas.
-- Acceso de personal con Auth.js Credentials. Se configura una credencial compartida mediante variables de entorno.
-- PostgreSQL mediante Neon en despliegue; SQLite en desarrollo local. Los datos de demostración JSON se importan si la base está vacía.
+- Acceso del personal con Neon Auth y una lista permitida de correos (`STAFF_EMAILS`). El registro público debe permanecer deshabilitado.
+- PostgreSQL mediante Neon en despliegue; SQLite en desarrollo local. Los datos JSON se importan solo en desarrollo, nunca al iniciar producción.
 
 No se incluyen cuentas de cliente, notificaciones automáticas, pagos, facturación, varios técnicos ni aplicaciones móviles nativas.
 
@@ -41,15 +41,15 @@ Copia `.env.example` a `.env.local` y configura:
 
 | Variable | Uso |
 | --- | --- |
-| `AUTH_SECRET` | Secreto aleatorio de Auth.js. Genera uno largo y privado para cada entorno. |
-| `STAFF_EMAIL` | Correo para iniciar sesión en el despacho. |
-| `STAFF_PASSWORD` | Contraseña privada para esa cuenta compartida. |
+| `NEON_AUTH_BASE_URL` | URL de la instancia Neon Auth del proyecto. |
+| `NEON_AUTH_COOKIE_SECRET` | Secreto privado de al menos 32 caracteres para cookies de sesión. |
+| `STAFF_EMAILS` | Correos autorizados separados por coma. El MVP autoriza `pepitovillegas07@hotmail.com`. |
 | `AI_GATEWAY_API_KEY` | Clave del servidor para Vercel AI Gateway; sin ella funciona el clasificador local. |
 | `JEV_MODEL` | Modelo JEV, por defecto `typesafe-ai/jev`. |
 | `DATABASE_URL` | Cadena PostgreSQL de Neon para Vercel. |
 | `SQLITE_DB_PATH` | Ruta SQLite de desarrollo; por defecto `data/electroagenda.db`. |
 
-Configura las variables privadas en la configuración del proyecto de Vercel. No incluyas secretos en Git. Las credenciales Auth.js son compartidas por el personal en este MVP y deben establecerse antes de publicar.
+Configura las variables privadas en la configuración del proyecto de Vercel. No incluyas secretos en Git. Crea la cuenta de personal autorizada en Neon Auth y mantén deshabilitado el registro público.
 
 ## Persistencia
 
@@ -76,7 +76,7 @@ Para el contenedor se requiere PostgreSQL accesible desde ese entorno. Neon func
 | `GET`, `PATCH` | `/api/appointments/:id` | Personal | Consultar o administrar solicitud y cita. |
 | `POST` | `/api/appointments/:id/reclassify` | Personal | Repetir clasificación de tipo y prioridad. |
 | `GET` | `/api/stats`, `/api/config` | Personal | Indicadores operativos y configuración visible al despacho. |
-| `GET`, `POST` | `/api/auth/*` | Auth.js | Inicio y cierre de sesión. |
+| `GET`, `POST`, `PUT`, `PATCH`, `DELETE` | `/api/auth/*` | Neon Auth | Inicio y cierre de sesión. |
 
 ## Comprobaciones locales
 

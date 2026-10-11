@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { classifyAppointment } from "@/lib/classifier";
 import { readAppointments, writeAppointments } from "@/lib/store";
-import { auth } from "@/auth";
+import { isAuthorizedStaff } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(_: NextRequest, context: { params: Promise<{ id: string }> }) {
-  if (!(await auth())) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  if (!(await isAuthorizedStaff())) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   const { id } = await context.params;
   const appointments = await readAppointments();
   const index = appointments.findIndex((item) => item.id === id);

@@ -1,8 +1,6 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 
-export const proxy = auth((request) => {
-  if (!request.auth) return NextResponse.redirect(new URL("/login", request.nextUrl));
-});
+export const proxy = auth.middleware({ loginUrl: "/login" });
+export default proxy;
 
 export const config = { matcher: ["/"] };

@@ -4,12 +4,12 @@ import { classifyAppointment } from "@/lib/classifier";
 import { sanitizeAppointment, validateAppointmentInput } from "@/lib/appointments";
 import { conflictsWithExisting, createFolio, isWithinBusinessHours, readAppointments, writeAppointments } from "@/lib/store";
 import type { Appointment } from "@/lib/types";
-import { auth } from "@/auth";
+import { isAuthorizedStaff } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  if (!(await auth())) return NextResponse.json({ error: "Inicia sesión para acceder al despacho" }, { status: 401 });
+  if (!(await isAuthorizedStaff())) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   const appointments = await readAppointments();
   const query = (request.nextUrl.searchParams.get("q") || "").toLowerCase();
   const status = request.nextUrl.searchParams.get("status") || "";
@@ -28,9 +28,9 @@ export async function POST(request: NextRequest) {
   const body = await request.json() as Record<string, unknown>;
   const validation = validateAppointmentInput(body);
   if (validation) return NextResponse.json({ error: validation }, { status: 400 });
-  const session = await auth();
-  const internalScheduling = Boolean(session && body.scheduledAt);
-  if (body.scheduledAt && !session) return NextResponse.json({ error: "No autorizado para asignar horarios" }, { status: 401 });
+  const authorized = await isAuthorizedStaff();
+  const internalScheduling = Boolean(authorized && body.scheduledAt);
+  if (body.scheduledAt && !authorized) return NextResponse.json({ error: "No autorizado para asignar horarios" }, { status: 401 });
   if (internalScheduling && (![30, 60, 90, 120].includes(Number(body.durationMin)) || Number.isNaN(new Date(String(body.scheduledAt)).getTime()))) return NextResponse.json({ error: "Indica horario y duración válidos" }, { status: 400 });
   if (internalScheduling && !isWithinBusinessHours(String(body.scheduledAt), Number(body.durationMin))) return NextResponse.json({ error: "El horario debe quedar entre lunes y sábado, de 9:00 a 19:00" }, { status: 400 });
   const appointments = await readAppointments();

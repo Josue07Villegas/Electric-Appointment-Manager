@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/icon";
-import { signOut } from "next-auth/react";
+import { authClient } from "@/lib/auth-client";
 import type { Appointment, AppointmentStatus, DashboardStats, Priority } from "@/lib/types";
 import { PRIORITIES, STATUSES } from "@/lib/types";
 
@@ -131,8 +131,8 @@ export function DispatchApp() {
 
       <section className="workbench">
         <header className="workbench-header">
-          <div><p className="micro-label">ELECTROAGENDA / CENTRO DE CONTROL</p><h1>{view === "despacho" ? "Despacho" : view === "ordenes" ? "Órdenes de servicio" : "Sistema"}<sup>01</sup></h1></div>
-          <div className="header-actions"><span className="live-signal"><i/> EN LÍNEA</span><Link href="/solicitar" className="portal-link">Portal cliente <Icon name="arrow" size={16}/></Link><button className="new-order" onClick={() => setShowNew(true)}><Icon name="plus"/> Nueva orden</button><button className="session-exit" onClick={() => signOut({ redirectTo: "/login" })}>Cerrar sesión</button></div>
+            <div><p className="micro-label">ELECTROAGENDA / CENTRO DE CONTROL</p><h1>{view === "despacho" ? "Despacho" : view === "ordenes" ? "Órdenes de servicio" : "Sistema"}<sup>01</sup></h1></div>
+          <div className="header-actions"><span className="live-signal"><i/> EN LÍNEA</span><Link href="/solicitar" className="portal-link">Portal cliente <Icon name="arrow" size={16}/></Link><button className="new-order" onClick={() => setShowNew(true)}><Icon name="plus"/> Nueva orden</button><button className="session-exit" onClick={async () => { await authClient.signOut(); window.location.assign("/login"); }}>Cerrar sesión</button></div>
         </header>
 
         {view === "despacho" && <>
