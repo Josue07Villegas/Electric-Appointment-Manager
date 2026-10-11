@@ -216,6 +216,22 @@ input, select, textarea { color: var(--ink); }
 
 .booking-form-panel { padding: clamp(42px, 6vw, 82px) clamp(28px, 6vw, 82px) 80px; background: var(--paper-bright); }
 .form-heading { padding-bottom: 28px; border-bottom: 1px solid var(--ink); }.form-heading > span { color: var(--orange); font-family: "Courier New", monospace; font-size: 9px; font-weight: 800; letter-spacing: .12em; }.form-heading h2 { margin-top: 9px; font-size: 37px; letter-spacing: -.06em; }.form-heading p { margin-top: 7px; color: var(--muted); font-size: 11px; }
+.staff-login-panel { display: flex; flex-direction: column; justify-content: center; }
+.staff-login-form { max-width: 520px; margin-top: 30px; }
+.staff-login-field { display: grid; gap: 9px; margin-bottom: 21px; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.staff-login-field input { width: 100%; min-height: 56px; padding: 0 15px; border: 1px solid var(--line); border-radius: 2px; outline: 0; background: white; color: var(--ink); font: 14px Arial, sans-serif; letter-spacing: normal; text-transform: none; transition: border-color .16s ease, box-shadow .16s ease, background .16s ease; }
+.staff-login-field input::placeholder { color: #aaa69d; }
+.staff-login-field input:hover { border-color: #a6a196; }
+.staff-login-field input:focus-visible { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255,101,15,.14); }
+.staff-login-field input:autofill { box-shadow: 0 0 0 100px white inset; }
+.staff-login-submit { min-height: 56px; margin-top: 4px; padding-inline: 17px; font-size: 12px; transition: background .16s ease, transform .16s ease; }
+.staff-login-submit:hover:not(:disabled) { transform: translateY(-1px); }
+.staff-register-toggle { justify-self: start; width: fit-content; margin-top: 18px; padding: 5px 0; border: 0; border-bottom: 1px solid transparent; background: transparent; color: var(--muted); font-size: 11px; font-weight: 700; cursor: pointer; }
+.staff-register-toggle:hover { border-bottom-color: var(--orange); color: var(--ink); }
+.staff-login-note { display: flex; align-items: center; gap: 9px; margin-top: 28px; padding-top: 17px; border-top: 1px solid var(--line); color: var(--muted); font-family: "Courier New", monospace; font-size: 9px; letter-spacing: .04em; }
+.staff-login-note span { color: var(--orange); font-size: 13px; }
+.staff-login-error, .staff-login-message { padding: 12px 13px; border-left: 3px solid var(--red); background: #fae8e5; color: #7f2f25; font-size: 11px; line-height: 1.5; }
+.staff-login-message { border-left-color: #47784e; background: #e8f1e8; color: #315a37; }
 .form-chapter { display: flex; align-items: center; gap: 13px; margin: 31px 0 20px; }.form-chapter b { color: var(--orange); font-family: "Courier New", monospace; font-size: 10px; }.form-chapter span { font-size: 12px; font-weight: 800; text-transform: uppercase; }
 .public-fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 17px 22px; }.public-fields label, .date-field label { color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }.public-fields .full { grid-column: 1 / -1; }
 .public-fields input, .public-fields select, .public-fields textarea, .date-field input { width: 100%; margin-top: 7px; padding: 10px 0; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; outline: 0; font-size: 12px; text-transform: none; }.public-fields input:focus, .public-fields select:focus, .public-fields textarea:focus, .date-field input:focus { border-bottom-color: var(--orange); }
@@ -247,4 +263,5 @@ input, select, textarea { color: var(--ink); }
   .system-view { grid-template-columns: 1fr; gap: 30px; }.system-statement h2 { font-size: 42px; }.scale-wire { grid-template-columns: 1fr; }.scale-wire li { border-right: 0; border-bottom: 1px solid var(--line); padding: 20px 0 !important; }
   .order-drawer { padding: 25px 20px 90px; }.order-drawer > h2 { font-size: 34px; }.order-form { grid-template-columns: 1fr; }.order-form label.wide, .order-form fieldset, .submit-order { grid-column: auto; }.drawer-grid { grid-template-columns: 1fr 1fr; }
   .booking-nav { height: 66px; }.booking-layout { min-height: calc(100vh - 66px); }.booking-manifesto { padding: 45px 22px; }.booking-manifesto h1 { font-size: 51px; }.manifesto-copy { font-size: 12px; }.service-facts { grid-template-columns: 1fr 1fr; }.service-facts div:last-child { grid-column: 1 / -1; }.booking-form-panel { padding: 45px 22px 70px; }.public-fields { grid-template-columns: 1fr; }.public-fields .full { grid-column: auto; }.date-field { grid-template-columns: 1fr; }.public-slots { grid-template-columns: repeat(3, 1fr); }.booking-success { min-height: calc(100vh - 66px); }.booking-success h2 { font-size: 40px; }.booking-success dl { grid-template-columns: 1fr; }
+  .staff-login-panel { min-height: 510px; }
 }
