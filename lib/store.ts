@@ -65,7 +65,7 @@ async function ensureDatabase() {
       await pgQuery("ALTER TABLE appointments ADD COLUMN IF NOT EXISTS duration_min INTEGER");
       await pgQuery("UPDATE appointments SET duration_min = (payload::jsonb ->> 'durationMin')::integer WHERE duration_min IS NULL AND payload::jsonb ->> 'durationMin' IS NOT NULL");
       await pgQuery("CREATE EXTENSION IF NOT EXISTS btree_gist");
-      await pgQuery("DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'appointments_scheduled_no_overlap') THEN ALTER TABLE appointments ADD CONSTRAINT appointments_scheduled_no_overlap EXCLUDE USING gist (tstzrange(scheduled_at, scheduled_at + make_interval(mins => duration_min), '[)') WITH &&) WHERE (status IN ('Confirmada', 'En camino', 'En servicio') AND scheduled_at IS NOT NULL AND duration_min IS NOT NULL); END IF; END $$");
+      await pgQuery("DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'appointments_scheduled_no_overlap') THEN ALTER TABLE appointments ADD CONSTRAINT appointments_scheduled_no_overlap EXCLUDE USING gist (tsrange(scheduled_at AT TIME ZONE 'UTC', (scheduled_at AT TIME ZONE 'UTC') + make_interval(mins => duration_min), '[)') WITH &&) WHERE (status IN ('Confirmada', 'En camino', 'En servicio') AND scheduled_at IS NOT NULL AND duration_min IS NOT NULL); END IF; END $$");
       const count = await pgQuery<{ count: number }>("SELECT COUNT(*)::int AS count FROM appointments");
       initialized = true;
       if (process.env.NODE_ENV !== "production" && Number(count[0]?.count || 0) === 0) await writeAppointments(await seedFromJson());
