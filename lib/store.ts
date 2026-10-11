@@ -60,11 +60,12 @@ async function ensureDatabase() {
   if (initialization) return initialization;
   initialization = (async () => {
     if (DATABASE_URL) {
-      await pgQuery("CREATE TABLE IF NOT EXISTS appointments (id TEXT PRIMARY KEY, folio TEXT NOT NULL UNIQUE, scheduled_at TEXT NOT NULL DEFAULT '', duration_min INTEGER, status TEXT NOT NULL, created_at TEXT NOT NULL, payload TEXT NOT NULL)");
+      await pgQuery("CREATE TABLE IF NOT EXISTS appointments (id TEXT PRIMARY KEY, folio TEXT NOT NULL UNIQUE, scheduled_at TIMESTAMPTZ, duration_min INTEGER, status TEXT NOT NULL, created_at TEXT NOT NULL, payload TEXT NOT NULL)");
+      await pgQuery("DO $$ BEGIN IF (SELECT data_type FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'appointments' AND column_name = 'scheduled_at') = 'text' THEN ALTER TABLE appointments ALTER COLUMN scheduled_at TYPE TIMESTAMPTZ USING NULLIF(scheduled_at, '')::timestamptz; END IF; END $$");
       await pgQuery("ALTER TABLE appointments ADD COLUMN IF NOT EXISTS duration_min INTEGER");
       await pgQuery("UPDATE appointments SET duration_min = (payload::jsonb ->> 'durationMin')::integer WHERE duration_min IS NULL AND payload::jsonb ->> 'durationMin' IS NOT NULL");
       await pgQuery("CREATE EXTENSION IF NOT EXISTS btree_gist");
-      await pgQuery("DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'appointments_scheduled_no_overlap') THEN ALTER TABLE appointments ADD CONSTRAINT appointments_scheduled_no_overlap EXCLUDE USING gist (tstzrange(scheduled_at::timestamptz, scheduled_at::timestamptz + make_interval(mins => duration_min), '[)') WITH &&) WHERE (status IN ('Confirmada', 'En camino', 'En servicio') AND scheduled_at <> '' AND duration_min IS NOT NULL); END IF; END $$");
+      await pgQuery("DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'appointments_scheduled_no_overlap') THEN ALTER TABLE appointments ADD CONSTRAINT appointments_scheduled_no_overlap EXCLUDE USING gist (tstzrange(scheduled_at, scheduled_at + make_interval(mins => duration_min), '[)') WITH &&) WHERE (status IN ('Confirmada', 'En camino', 'En servicio') AND scheduled_at IS NOT NULL AND duration_min IS NOT NULL); END IF; END $$");
       const count = await pgQuery<{ count: number }>("SELECT COUNT(*)::int AS count FROM appointments");
       initialized = true;
       if (process.env.NODE_ENV !== "production" && Number(count[0]?.count || 0) === 0) await writeAppointments(await seedFromJson());
@@ -116,7 +117,7 @@ export async function writeAppointments(appointments: Appointment[]) {
     for (const appointment of appointments) {
       await pgQuery(
         "INSERT INTO appointments (id, folio, scheduled_at, duration_min, status, created_at, payload) VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO UPDATE SET folio = EXCLUDED.folio, scheduled_at = EXCLUDED.scheduled_at, duration_min = EXCLUDED.duration_min, status = EXCLUDED.status, payload = EXCLUDED.payload",
-        [appointment.id, appointment.folio, appointment.scheduledAt || "", appointment.durationMin, appointment.status, appointment.createdAt, JSON.stringify(appointment)],
+        [appointment.id, appointment.folio, appointment.scheduledAt, appointment.durationMin, appointment.status, appointment.createdAt, JSON.stringify(appointment)],
       );
     }
     return;
