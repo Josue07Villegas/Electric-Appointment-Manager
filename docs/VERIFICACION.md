@@ -29,7 +29,7 @@ Las pruebas automatizadas usan datos ficticios aislados y no son resultados oper
 
 ## Pendientes externos
 
-- JEV: la clave local recibió HTTP 403, `no_providers_available`. El proveedor indicó que la cuenta requiere créditos de pago para ese modelo. Vercel no tiene `AI_GATEWAY_API_KEY`; producción utiliza el clasificador local. No se compraron créditos ni se subió una clave sin acceso al modelo.
+- JEV: después de la recarga realizada por el usuario el 31 de octubre de 2026, la integración respondió correctamente a una solicitud sintética: origen JEV, servicio Mantenimiento y prioridad Baja. Se configuró la clave como secreto de producción en Vercel. Esta comprobación de conexión no sustituye la evaluación humana de 30 casos. El respaldo local se conserva para indisponibilidad del proveedor.
 - La muestra de 30 solicitudes del técnico sigue pendiente. La matriz incluida está vacía deliberadamente; no hay resultados reales ni metas operativas acreditadas.
 - Neon: la disponibilidad respondió correctamente. Falta verificar restauración y concurrencia PostgreSQL en una rama aislada; las pruebas SQLite no sustituyen esas evidencias.
 - Autenticación: se comprobó el rechazo de accesos anónimos. La sesión real del personal debe verificarse con su cuenta; no se modificaron usuarios ni contraseñas.
