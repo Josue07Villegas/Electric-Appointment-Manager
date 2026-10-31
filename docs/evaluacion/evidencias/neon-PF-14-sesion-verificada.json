@@ -1,0 +1,52 @@
+{
+  "id": "PF-14",
+  "startedAt": "2026-10-31T07:07:30.827Z",
+  "branch": "br-holy-voice-b4p1w6js",
+  "status": "aprobado",
+  "environment": "Next.js local y Neon Auth real de una rama aislada, con PostgreSQL real",
+  "actor": "Ejecución automatizada asistida por Codex",
+  "credentials": "Cuenta sintética temporal; valores de acceso omitidos de la evidencia",
+  "steps": [
+    {
+      "endpoint": "/api/auth/sign-up/email",
+      "status": 200
+    },
+    {
+      "endpoint": "/api/appointments",
+      "status": 200
+    },
+    {
+      "endpoint": "/api/auth/sign-out",
+      "status": 200
+    },
+    {
+      "endpoint": "/api/appointments",
+      "status": 401
+    },
+    {
+      "endpoint": "/api/auth/sign-in/email",
+      "status": 200
+    },
+    {
+      "endpoint": "/api/appointments",
+      "status": 200
+    },
+    {
+      "endpoint": "/api/auth/sign-out",
+      "status": 200
+    }
+  ],
+  "scope": "Prueba de las rutas HTTP y del SDK real de sesión. No es una prueba visual del navegador ni usa cuentas de producción.",
+  "evidence": {
+    "persistedId": "bd1ad943-82b4-40d0-be89-e6496c662679",
+    "status": "Completada",
+    "reception": "2027-01-04T15:00:00Z",
+    "firstConfirmedAt": "2027-01-04T15:20:00Z",
+    "arrivedAt": "2027-01-05T15:00:00Z",
+    "arrivalScheduledAt": "2027-01-05T15:00:00Z",
+    "rowsBefore": 16,
+    "rowsAfter": 16
+  },
+  "observed": "Una sesión real fue cerrada y abierta nuevamente; el servidor rechazó la consulta sin sesión y conservó los datos del servicio completado.",
+  "finishedAt": "2026-10-31T07:07:42.081Z"
+}

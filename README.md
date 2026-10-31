@@ -129,3 +129,5 @@ El comando utiliza la misma integración que la aplicación, consume el servicio
 Consulta `docs/IMPLEMENTACION.md` para instalar, redesplegar y comprobar Neon, restauración y evidencias de evaluación. Actualizar el código descargado no modifica automáticamente el sitio en Vercel.
 
 La comparación con el documento y el alcance de las comprobaciones se encuentran en [docs/VERIFICACION.md](docs/VERIFICACION.md).
+
+Los 16 escenarios funcionales del Anexo C y la matriz propuesta de 30 escenarios simulados para JEV están documentados en [docs/evaluacion/README.md](docs/evaluacion/README.md). La matriz JEV sigue pendiente de revisión técnica antes de ejecutar su evaluación.

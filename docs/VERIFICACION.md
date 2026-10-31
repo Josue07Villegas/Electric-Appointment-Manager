@@ -19,7 +19,7 @@ No se completan fechas históricas ausentes ni se convierten solicitudes antigua
 
 ## Comprobaciones realizadas
 
-- 12 pruebas automatizadas: clasificación simulada, ciclo de atención, KPI, periodos y exclusiones, evaluación simulada, permisos de rutas, notas, versiones y concurrencia SQLite.
+- 12 pruebas de regresión automatizadas, más los 16 escenarios del Anexo C aprobados al cierre del 31 de octubre. La ejecución ampliada incluye PostgreSQL real, sesión HTTP real de Neon Auth, consulta real de JEV y recuperación de snapshot. Ver `evaluacion/resultados-funcionales-2026-10-31.json` para alcance y evidencias.
 - Revisión de tipos TypeScript.
 - Compilación en Vercel con las variables ya configuradas en el servicio.
 - Vista previa: formulario público 200; horarios desde Neon 200; indicadores sin sesión 401; panel sin sesión 307 hacia inicio de sesión.
@@ -30,9 +30,9 @@ Las pruebas automatizadas usan datos ficticios aislados y no son resultados oper
 ## Pendientes externos
 
 - JEV: después de la recarga realizada por el usuario el 31 de octubre de 2026, la integración respondió correctamente a una solicitud sintética: origen JEV, servicio Mantenimiento y prioridad Baja. Se configuró la clave como secreto de producción en Vercel. Esta comprobación de conexión no sustituye la evaluación humana de 30 casos. El respaldo local se conserva para indisponibilidad del proveedor.
-- La muestra de 30 solicitudes del técnico sigue pendiente. La matriz incluida está vacía deliberadamente; no hay resultados reales ni metas operativas acreditadas.
-- Neon: la disponibilidad respondió correctamente. Falta verificar restauración y concurrencia PostgreSQL en una rama aislada; las pruebas SQLite no sustituyen esas evidencias.
-- Autenticación: se comprobó el rechazo de accesos anónimos. La sesión real del personal debe verificarse con su cuenta; no se modificaron usuarios ni contraseñas.
+- Se prepararon 30 escenarios simulados en `evaluacion/jev-matriz-propuesta.json`, con referencias propuestas y justificaciones. Falta la revisión previa del técnico antes de consultar JEV. No hay resultados de precisión ni metas operativas acreditadas.
+- Neon: concurrencia y recuperación comprobadas en ramas aisladas. El snapshot recuperó los 17 registros sintéticos con hashes idénticos y conservó la restricción de traslapes. Producción no se modificó para probar.
+- Autenticación: una cuenta sintética de la rama QA comprobó registro, consulta autenticada, cierre, rechazo sin sesión y reapertura con persistencia usando las rutas HTTP y el SDK reales. No se usaron ni modificaron cuentas de producción.
 - El análisis de npm conserva alertas transitivas en el SDK beta de Neon Auth y sus dependencias. La aplicación delega la autenticación en Neon y no configura un servidor Better Auth propio. Las alertas no certifican por sí solas la exposición del flujo desplegado; queda pendiente una actualización compatible del SDK y su verificación de inicio de sesión. No se aplicaron actualizaciones forzadas que cambiaran la autenticación existente.
 
 ## Reproducción
@@ -46,4 +46,4 @@ pnpm typecheck
 pnpm build
 ```
 
-La compilación necesita las variables Neon Auth. En Vercel ya están configuradas. El evaluador JEV se ejecuta aparte y requiere créditos y una matriz real revisada; no forma parte de la compilación.
+La compilación necesita las variables Neon Auth. En Vercel ya están configuradas. El evaluador JEV se ejecuta aparte y requiere créditos y una matriz revisada por el técnico; no forma parte de la compilación.

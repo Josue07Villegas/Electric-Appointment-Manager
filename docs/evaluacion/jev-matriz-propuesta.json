@@ -1,0 +1,520 @@
+{
+  "title": "Matriz propuesta de 30 escenarios simulados para JEV",
+  "dataNature": "simulada; sin solicitudes ni datos personales reales",
+  "referenceOrigin": "propuestas elaboradas con asistencia de IA, no validadas por el técnico",
+  "status": "pendiente de revisión humana; no ejecutar como evaluación oficial",
+  "reviewer": "",
+  "reviewedAt": "",
+  "catalogVersion": "electroagenda-v2",
+  "priorityScale": [
+    "Crítica",
+    "Alta",
+    "Normal",
+    "Baja"
+  ],
+  "selectionMethod": "Cobertura intencional de cinco servicios y cuatro prioridades. No representa frecuencias de operación ni una muestra estadística.",
+  "inputPolicy": "El servicio solicitado se fija como No especificado para probar la clasificación de la descripción sin revelar la etiqueta de referencia. Esta condición difiere del formulario público, que solicita un servicio aproximado.",
+  "acceptance": {
+    "validJevResponses": 30,
+    "minimumServiceMatches": 24,
+    "minimumPriorityMatches": 24,
+    "maximumTechnicalRetries": 1
+  },
+  "distribution": {
+    "service": {
+      "Diagnóstico": 6,
+      "Instalación": 6,
+      "Mantenimiento": 6,
+      "Reparación": 6,
+      "Cotización": 6
+    },
+    "priority": {
+      "Crítica": 6,
+      "Alta": 6,
+      "Normal": 6,
+      "Baja": 12
+    }
+  },
+  "cases": [
+    {
+      "id": "JEV-01",
+      "description": "Al conectar un aparato aparecen chispas cerca del contacto, pero no se sabe si provienen del enchufe, del contacto o del cableado. Solicito identificar el origen.",
+      "requestedService": "No especificado",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": true,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Diagnóstico",
+      "expectedPriority": "Crítica",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "El trabajo solicitado es localizar el origen aún desconocido; las chispas motivan prioridad crítica."
+    },
+    {
+      "id": "JEV-02",
+      "description": "Se percibe olor a quemado junto al tablero y todavía no se ha identificado qué componente lo produce. Se requiere localizar la causa.",
+      "requestedService": "No especificado",
+      "propertyType": "Comercio",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": true,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Diagnóstico",
+      "expectedPriority": "Crítica",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Falla sin causa identificada y señal de riesgo inmediato."
+    },
+    {
+      "id": "JEV-03",
+      "description": "Toda la vivienda se quedó sin energía y los vecinos sí tienen luz. No hay humo, chispas ni olor a quemado. No conocemos la causa y pedimos diagnosticarla.",
+      "requestedService": "No especificado",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": true
+      },
+      "expectedService": "Diagnóstico",
+      "expectedPriority": "Alta",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Pérdida total de energía con causa desconocida."
+    },
+    {
+      "id": "JEV-04",
+      "description": "El interruptor principal se dispara varias veces al día. No se sabe qué circuito o equipo lo provoca y no hay señales de humo o quemado. Necesitamos localizar la causa.",
+      "requestedService": "No especificado",
+      "propertyType": "Oficina",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Diagnóstico",
+      "expectedPriority": "Alta",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Disparos repetidos que requieren diagnóstico."
+    },
+    {
+      "id": "JEV-05",
+      "description": "El recibo de energía aumentó sin cambios claros de consumo. No hay interrupciones ni señales de peligro; solicito una revisión para identificar la causa.",
+      "requestedService": "No especificado",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Diagnóstico",
+      "expectedPriority": "Normal",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Investigación programada sin falla urgente ni peligro observado."
+    },
+    {
+      "id": "JEV-06",
+      "description": "Una lámpara parpadea de manera ocasional y no sabemos si la causa es la lámpara o la instalación. No hay chispas, humo, olor ni pérdida de energía.",
+      "requestedService": "No especificado",
+      "propertyType": "Departamento",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Diagnóstico",
+      "expectedPriority": "Normal",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Origen no identificado y funcionamiento general conservado."
+    },
+    {
+      "id": "JEV-07",
+      "description": "El local quedó sin alimentación eléctrica al terminar una remodelación. El trabajo requerido es instalar una nueva línea de alimentación ya especificada; no se solicita investigar ni reparar una avería existente.",
+      "requestedService": "No especificado",
+      "propertyType": "Comercio",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": true
+      },
+      "expectedService": "Instalación",
+      "expectedPriority": "Alta",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Instalación nueva con pérdida total de energía que impide usar el local."
+    },
+    {
+      "id": "JEV-08",
+      "description": "Necesito instalar un circuito nuevo y exclusivo para una bomba de agua dentro de una obra en curso. El alcance ya está definido y solicito una visita programada para ejecutarlo.",
+      "requestedService": "No especificado",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Instalación",
+      "expectedPriority": "Normal",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Ejecución programada de un circuito nuevo; prioridad sujeta a confirmación del técnico."
+    },
+    {
+      "id": "JEV-09",
+      "description": "Se requiere montar un tablero nuevo y conectar los circuitos de un local antes de su apertura. No existe un tablero averiado que haya que reparar; solicito programar la instalación.",
+      "requestedService": "No especificado",
+      "propertyType": "Comercio",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Instalación",
+      "expectedPriority": "Normal",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Montaje de infraestructura nueva con fecha de apertura prevista."
+    },
+    {
+      "id": "JEV-10",
+      "description": "Solicito instalar un circuito y una conexión nuevos para un horno eléctrico adquirido recientemente. La instalación actual funciona y el trabajo se quiere programar esta semana.",
+      "requestedService": "No especificado",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Instalación",
+      "expectedPriority": "Normal",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Trabajo nuevo definido y programado; revisar prioridad frente a la categoría Baja."
+    },
+    {
+      "id": "JEV-11",
+      "description": "Quiero agregar iluminación decorativa al patio. La instalación funciona, no hay fallas y no tengo urgencia; busco programar esta mejora.",
+      "requestedService": "No especificado",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Instalación",
+      "expectedPriority": "Baja",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Mejora sin falla activa ni urgencia."
+    },
+    {
+      "id": "JEV-12",
+      "description": "Deseamos colocar dos contactos adicionales para reorganizar un escritorio. Los contactos actuales funcionan y podemos esperar a una fecha disponible.",
+      "requestedService": "No especificado",
+      "propertyType": "Oficina",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Instalación",
+      "expectedPriority": "Baja",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Ampliación opcional de la instalación."
+    },
+    {
+      "id": "JEV-13",
+      "description": "Solicito la revisión preventiva periódica del tablero y sus conexiones. Todo funciona y no se han observado fallas ni señales de peligro.",
+      "requestedService": "No especificado",
+      "propertyType": "Comercio",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Mantenimiento",
+      "expectedPriority": "Baja",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Actividad preventiva sin falla activa."
+    },
+    {
+      "id": "JEV-14",
+      "description": "Quiero programar una revisión preventiva de contactos y apagadores antes de la temporada de calor. No hay componentes dañados ni problemas actuales.",
+      "requestedService": "No especificado",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Mantenimiento",
+      "expectedPriority": "Baja",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Inspección preventiva programada."
+    },
+    {
+      "id": "JEV-15",
+      "description": "Corresponde efectuar el mantenimiento periódico de las luminarias y revisar sus conexiones. Todas encienden y no se reportan fallas.",
+      "requestedService": "No especificado",
+      "propertyType": "Oficina",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Mantenimiento",
+      "expectedPriority": "Baja",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Mantenimiento periódico de equipos que funcionan."
+    },
+    {
+      "id": "JEV-16",
+      "description": "Necesitamos una revisión preventiva del sistema de puesta a tierra como parte del mantenimiento anual. No se han presentado descargas ni fallas.",
+      "requestedService": "No especificado",
+      "propertyType": "Comercio",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Mantenimiento",
+      "expectedPriority": "Baja",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Comprobación preventiva sin incidente activo."
+    },
+    {
+      "id": "JEV-17",
+      "description": "Solicito una revisión general preventiva de la instalación antes de rentar el inmueble. No hay fallas conocidas y la fecha es flexible.",
+      "requestedService": "No especificado",
+      "propertyType": "Departamento",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Mantenimiento",
+      "expectedPriority": "Baja",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Revisión preventiva con fecha flexible."
+    },
+    {
+      "id": "JEV-18",
+      "description": "Busco programar el mantenimiento periódico de la iluminación exterior y revisar las conexiones existentes. Actualmente opera con normalidad.",
+      "requestedService": "No especificado",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Mantenimiento",
+      "expectedPriority": "Baja",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Conservación preventiva de una instalación existente."
+    },
+    {
+      "id": "JEV-19",
+      "description": "Un contacto identificado está dañado y desprende humo. Se solicita corregir o sustituir ese componente; la ubicación de la avería ya se conoce.",
+      "requestedService": "No especificado",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": true,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Reparación",
+      "expectedPriority": "Crítica",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Componente averiado identificado y humo."
+    },
+    {
+      "id": "JEV-20",
+      "description": "Se identificó un empalme deteriorado que produce chispas. Solicito reparar esa conexión dañada; no se trata de instalar un circuito nuevo.",
+      "requestedService": "No especificado",
+      "propertyType": "Comercio",
+      "riskSignals": {
+        "sparks": true,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Reparación",
+      "expectedPriority": "Crítica",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Reparación localizada con chispas."
+    },
+    {
+      "id": "JEV-21",
+      "description": "El interruptor del tablero ya fue identificado como dañado y desprende olor a quemado. Se solicita reparar la avería o sustituir el componente afectado.",
+      "requestedService": "No especificado",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": true,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Reparación",
+      "expectedPriority": "Crítica",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Avería identificada con olor a quemado."
+    },
+    {
+      "id": "JEV-22",
+      "description": "Un portalámparas identificado está roto y genera chispas al usarse. Solicito corregir o sustituir el componente dañado.",
+      "requestedService": "No especificado",
+      "propertyType": "Departamento",
+      "riskSignals": {
+        "sparks": true,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Reparación",
+      "expectedPriority": "Crítica",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Componente roto que genera chispas."
+    },
+    {
+      "id": "JEV-23",
+      "description": "El interruptor principal está identificado como averiado y el local no tiene energía. No hay humo, chispas ni olor a quemado. Solicito sustituir la pieza dañada y corregir la falla.",
+      "requestedService": "No especificado",
+      "propertyType": "Comercio",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": true
+      },
+      "expectedService": "Reparación",
+      "expectedPriority": "Alta",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Avería identificada que deja sin energía el inmueble."
+    },
+    {
+      "id": "JEV-24",
+      "description": "En una revisión previa se identificó una conexión floja que provoca disparos repetidos del interruptor. Solicito corregir esa conexión; no hay humo ni olor a quemado.",
+      "requestedService": "No especificado",
+      "propertyType": "Oficina",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Reparación",
+      "expectedPriority": "Alta",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Corrección de causa identificada con disparos repetidos."
+    },
+    {
+      "id": "JEV-25",
+      "description": "El local no tiene energía y ya se determinó que requiere sustituir la acometida. Por ahora únicamente solicito una visita para presupuestar ese trabajo antes de autorizar su ejecución.",
+      "requestedService": "No especificado",
+      "propertyType": "Comercio",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": true
+      },
+      "expectedService": "Cotización",
+      "expectedPriority": "Alta",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Se pide presupuesto, no ejecución; la pérdida total de energía eleva la prioridad."
+    },
+    {
+      "id": "JEV-26",
+      "description": "Un contacto no funciona, pero el resto de la casa tiene energía y no hay señales de peligro. Por ahora solo quiero una visita y presupuesto para sustituirlo antes de autorizar la reparación.",
+      "requestedService": "No especificado",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Cotización",
+      "expectedPriority": "Normal",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Presupuesto sobre una falla activa localizada sin peligro; confirmar prioridad con el técnico."
+    },
+    {
+      "id": "JEV-27",
+      "description": "Solicito una visita para cotizar la iluminación de un jardín que todavía no existe. No autorizo la instalación en esta solicitud y no hay falla actual.",
+      "requestedService": "No especificado",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Cotización",
+      "expectedPriority": "Baja",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Presupuesto previo de una mejora."
+    },
+    {
+      "id": "JEV-28",
+      "description": "Quiero conocer el costo de ampliar los contactos del local. Todo funciona y primero necesito un presupuesto para decidir si se realizará el trabajo.",
+      "requestedService": "No especificado",
+      "propertyType": "Comercio",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Cotización",
+      "expectedPriority": "Baja",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Evaluación económica sin falla activa."
+    },
+    {
+      "id": "JEV-29",
+      "description": "Busco un presupuesto para renovar por etapas una instalación que está funcionando. La solicitud es solo para inspección y precio, con fecha flexible.",
+      "requestedService": "No especificado",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Cotización",
+      "expectedPriority": "Baja",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Cotización de renovación planificada."
+    },
+    {
+      "id": "JEV-30",
+      "description": "Solicitamos una visita para presupuestar el cambio a iluminación de menor consumo. Las luminarias actuales funcionan y aún no autorizamos su sustitución.",
+      "requestedService": "No especificado",
+      "propertyType": "Oficina",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "Cotización",
+      "expectedPriority": "Baja",
+      "referenceStatus": "propuesta pendiente de revisión del técnico",
+      "rationale": "Presupuesto de mejora energética sin falla."
+    }
+  ]
+}

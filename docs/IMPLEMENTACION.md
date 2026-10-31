@@ -32,13 +32,13 @@ Las pruebas automatizadas incluidas verifican concurrencia e integridad con SQLi
 
 ## Recuperación y dependencias externas
 
-Antes de la entrega final, verifica los planes, límites y opciones de recuperación realmente habilitados para la cuenta de Neon. En un entorno aislado, realiza la recuperación disponible según ese plan y comprueba que reaparecen citas de referencia, estados y campos temporales. Guarda fecha, procedimiento y resultado. Este trabajo no se ha ejecutado desde el ZIP.
+Antes de la entrega final, verifica los planes, límites y opciones de recuperación realmente habilitados para la cuenta de Neon. En un entorno aislado, realiza la recuperación disponible según ese plan y comprueba que reaparecen citas de referencia, estados y campos temporales. Guarda fecha, procedimiento y resultado. La recuperación ya fue comprobada en una rama aislada el 31 de octubre de 2026; la evidencia y sus límites se encuentran en `evaluacion/resultados-funcionales-2026-10-31.json`.
 
 Verifica también las condiciones de uso y consumo de Vercel y AI Gateway y la disponibilidad real de JEV para la cuenta. No se presume un plan gratuito suficiente ni un costo fijo.
 
 ## Evidencias para evaluación
 
-- Ejecuta los 30 casos reales referenciados por el técnico mediante la matriz y el evaluador incluidos. Conserva la matriz previa, la distribución, respuestas, coincidencias y subestimaciones. No se ha ejecutado esta evaluación con una clave real.
+- Revisa con el técnico la selección de los 30 casos y sus referencias antes de ejecutar el evaluador. La propuesta `evaluacion/jev-matriz-propuesta.json` contiene escenarios simulados y no debe atribuirse a solicitudes reales. Conserva la matriz previa, la distribución, respuestas, coincidencias y subestimaciones. No se ha ejecutado esta evaluación con una clave real.
 - Descarga `/api/metrics` durante el periodo operativo y al cierre. Puedes indicar `from` y `to`; el 6 de diciembre completo en Monterrey termina en `2026-12-07T00:00:00-06:00` (extremo exclusivo).
 - El archivo exportado explica exclusiones por registro y por motivo. Para contar visitas, se consideran En servicio y Completada con llegada verificable. Las cancelaciones antes de la primera confirmación no cuentan para el promedio; las posteriores sí conservan ese tiempo.
 - La llegada registrada es una marca manual en el momento de cambiar el estado. Un registro tardío afecta la medición; acuerda con el técnico el uso al llegar. La comparación histórica requiere el mismo criterio de puntualidad.
