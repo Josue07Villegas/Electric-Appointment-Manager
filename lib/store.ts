@@ -3,6 +3,7 @@ import { neon } from "@neondatabase/serverless";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { Appointment, DashboardStats } from "@/lib/types";
+import { computeKpis } from "@/lib/metrics";
 import { PRIORITIES, STATUSES } from "@/lib/types";
 
 const DEFAULT_DATA_FILE = path.join(process.cwd(), "data", "appointments.json");
@@ -58,6 +59,7 @@ async function seedFromJson() {
 async function ensureDatabase() {
   if (initialized) return;
   if (initialization) return initialization;
+  if (process.env.NODE_ENV === "production" && !DATABASE_URL) throw new Error("Configura DATABASE_URL para almacenamiento persistente en producción");
   initialization = (async () => {
     if (DATABASE_URL) {
       await pgQuery("CREATE TABLE IF NOT EXISTS appointments (id TEXT PRIMARY KEY, folio TEXT NOT NULL UNIQUE, scheduled_at TIMESTAMPTZ, duration_min INTEGER, status TEXT NOT NULL, created_at TEXT NOT NULL, payload TEXT NOT NULL)");
@@ -82,7 +84,12 @@ async function ensureDatabase() {
       if (process.env.NODE_ENV !== "production" && Number(count.rows[0]?.count || 0) === 0) await writeAppointments(await seedFromJson());
     }
   })();
-  await initialization;
+  try {
+    await initialization;
+  } catch (error) {
+    initialization = null;
+    throw error;
+  }
 }
 
 export async function readAppointments(): Promise<Appointment[]> {
@@ -95,13 +102,20 @@ export async function readAppointments(): Promise<Appointment[]> {
   return result.rows.map((row) => normalizeAppointment(JSON.parse(String(row.payload)) as Appointment));
 }
 
+const persistedSnapshots = new WeakMap<Appointment, string>();
+
 function normalizeAppointment(appointment: Appointment): Appointment {
-  return {
+  const normalized: Appointment = {
     ...appointment,
+    revision: appointment.revision ?? 0,
+    firstConfirmedAt: appointment.firstConfirmedAt || null,
+    arrivedAt: appointment.arrivedAt || null,
+    arrivalScheduledAt: appointment.arrivalScheduledAt || null,
     scheduledAt: appointment.scheduledAt || null,
     durationMin: appointment.durationMin || null,
     preferredSlots: appointment.preferredSlots || [],
     classification: {
+      ...appointment.classification,
       serviceType: appointment.classification?.serviceType || "Diagnóstico",
       priority: PRIORITIES.includes(appointment.classification?.priority) ? appointment.classification.priority : "Normal",
       source: appointment.classification?.source || "legado",
@@ -109,6 +123,8 @@ function normalizeAppointment(appointment: Appointment): Appointment {
       ...(appointment.classification?.note ? { note: appointment.classification.note } : {}),
     },
   };
+  persistedSnapshots.set(normalized, JSON.stringify(appointment));
+  return normalized;
 }
 
 export async function writeAppointments(appointments: Appointment[]) {
@@ -152,13 +168,14 @@ export function conflictsWithExisting(appointments: Appointment[], scheduledAt: 
 export function getAvailableSlots(items: Appointment[], dateKey: string, durationMin = 60) {
   const [year, month, dayOfMonth] = dateKey.split("-").map(Number);
   const day = new Date(Date.UTC(year, month - 1, dayOfMonth)).getUTCDay();
-  if (!year || !month || !dayOfMonth || day === 0) return [];
+  const calendarDate = new Date(Date.UTC(year, month - 1, dayOfMonth));
+  if (!year || !month || !dayOfMonth || day === 0 || calendarDate.getUTCFullYear() !== year || calendarDate.getUTCMonth() !== month - 1 || calendarDate.getUTCDate() !== dayOfMonth) return [];
   const slots: { value: string; label: string }[] = [];
   for (let minutes = BUSINESS_START * 60; minutes < BUSINESS_END * 60; minutes += SLOT_STEP_MIN) {
     const hour = Math.floor(minutes / 60);
     const minute = minutes % 60;
     const candidate = zonedLocalToUtc(year, month, dayOfMonth, hour, minute);
-    if (!conflictsWithExisting(items, candidate.toISOString(), durationMin)) {
+    if (isWithinBusinessHours(candidate.toISOString(), durationMin) && !conflictsWithExisting(items, candidate.toISOString(), durationMin)) {
       if (candidate.getTime() <= Date.now()) continue;
       slots.push({
         value: candidate.toISOString(),
@@ -193,6 +210,7 @@ export function computeStats(items: Appointment[]): DashboardStats {
   const completed = items.filter((item) => item.status === "Completada").length;
   const closed = items.filter((item) => ["Completada", "Cancelada"].includes(item.status)).length;
   return {
+    kpis: computeKpis(items),
     total: items.length,
     today: active.filter((item) => item.scheduledAt && businessDateKey(new Date(item.scheduledAt)) === todayKey).length,
     pendingReview: active.filter((item) => item.status === "Pendiente").length,
@@ -203,10 +221,27 @@ export function computeStats(items: Appointment[]): DashboardStats {
   };
 }
 
-function businessDateKey(date: Date) {
+export function businessDateKey(date: Date) {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: BUSINESS_TIME_ZONE, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(date);
   const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
   return `${values.year}-${values.month}-${values.day}`;
 }
 
 export const businessHours = { start: BUSINESS_START, end: BUSINESS_END, sundayClosed: true };
+
+// Each request writes only its own row; compare the persisted snapshot atomically.
+export async function saveAppointment(appointment: Appointment, previous?: Appointment) {
+  await ensureDatabase();
+  const args = [appointment.id, appointment.folio, appointment.scheduledAt, appointment.durationMin, appointment.status, appointment.createdAt, JSON.stringify(appointment)];
+  if (DATABASE_URL) {
+    const rows = previous
+      ? await pgQuery("UPDATE appointments SET scheduled_at=$1, duration_min=$2, status=$3, payload=$4 WHERE id=$5 AND payload::jsonb = $6::jsonb RETURNING id", [appointment.scheduledAt, appointment.durationMin, appointment.status, JSON.stringify(appointment), appointment.id, persistedSnapshots.get(previous) || JSON.stringify(previous)])
+      : await pgQuery("INSERT INTO appointments (id, folio, scheduled_at, duration_min, status, created_at, payload) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id", args);
+    if (!rows.length) throw new Error("STALE_APPOINTMENT");
+  } else {
+    const result = previous
+      ? await getSqlite().execute({ sql: "UPDATE appointments SET scheduled_at=?, duration_min=?, status=?, payload=? WHERE id=? AND payload=?", args: [appointment.scheduledAt || "", appointment.durationMin, appointment.status, JSON.stringify(appointment), appointment.id, persistedSnapshots.get(previous) || JSON.stringify(previous)] })
+      : await getSqlite().execute({ sql: "INSERT INTO appointments (id, folio, scheduled_at, duration_min, status, created_at, payload) VALUES (?,?,?,?,?,?,?)", args: [appointment.id, appointment.folio, appointment.scheduledAt || "", appointment.durationMin, appointment.status, appointment.createdAt, JSON.stringify(appointment)] });
+    if (!result.rowsAffected) throw new Error("STALE_APPOINTMENT");
+  }
+}

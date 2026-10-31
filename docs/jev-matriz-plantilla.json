@@ -1,0 +1,426 @@
+{
+  "reviewer": "",
+  "reviewedAt": "",
+  "cases": [
+    {
+      "id": "JEV-01",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-02",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-03",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-04",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-05",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-06",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-07",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-08",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-09",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-10",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-11",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-12",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-13",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-14",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-15",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-16",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-17",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-18",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-19",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-20",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-21",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-22",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-23",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-24",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-25",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-26",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-27",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-28",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-29",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    },
+    {
+      "id": "JEV-30",
+      "description": "",
+      "requestedService": "",
+      "propertyType": "Casa",
+      "riskSignals": {
+        "sparks": false,
+        "smoke": false,
+        "burningSmell": false,
+        "totalPowerLoss": false
+      },
+      "expectedService": "",
+      "expectedPriority": ""
+    }
+  ]
+}

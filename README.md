@@ -25,7 +25,7 @@ No se incluyen cuentas de cliente, notificaciones automáticas, pagos, facturaci
 
 ## Requisitos y desarrollo local
 
-- Node.js 20.9 o superior.
+- Node.js 22.9 o posterior de las ramas 22 o 24.
 - pnpm, Bun o npm.
 
 ```bash
@@ -75,6 +75,7 @@ Para el contenedor se requiere PostgreSQL accesible desde ese entorno. Neon func
 | `GET` | `/api/appointments` | Personal | Consultar y filtrar solicitudes. |
 | `GET`, `PATCH` | `/api/appointments/:id` | Personal | Consultar o administrar solicitud y cita. |
 | `POST` | `/api/appointments/:id/reclassify` | Personal | Repetir clasificación de tipo y prioridad. |
+| `GET` | `/api/metrics` | Personal | Exportar indicadores, periodos y exclusiones sin datos de contacto. |
 | `GET` | `/api/stats`, `/api/config` | Personal | Indicadores operativos y configuración visible al despacho. |
 | `GET`, `POST`, `PUT`, `PATCH`, `DELETE` | `/api/auth/*` | Neon Auth | Inicio y cierre de sesión. |
 
@@ -82,5 +83,49 @@ Para el contenedor se requiere PostgreSQL accesible desde ese entorno. Neon func
 
 ```bash
 pnpm typecheck
+pnpm test
 pnpm build
 ```
+
+## Ajustes de medición y agenda
+
+- `createdAt` se registra al recibir la solicitud, antes de consultar JEV.
+- `firstConfirmedAt` se asigna en la primera confirmación y se conserva en cancelaciones posteriores y reprogramaciones. No se reconstruye a partir de `updatedAt` en registros antiguos.
+- Pasar a **En servicio** registra la llegada actual en `arrivedAt` y congela el último inicio acordado en `arrivalScheduledAt`. El personal debe hacerlo al llegar al domicilio. No es geolocalización ni detección automática de presencia.
+- Una visita iniciada o cerrada no permite cambiar el horario. Las citas completadas y canceladas permanecen en el historial. Debe pasarse por En servicio antes de completar una visita nueva.
+- El panel muestra promedios, porcentajes, muestras válidas y exclusiones. Sin observaciones válidas se muestra «Sin datos»; nunca se presume una mejora.
+- El listado API y el archivo usan prioridad y recepción para pendientes, y horario para el resto. Los folios nuevos usan un sufijo aleatorio para evitar competir por el mismo consecutivo.
+- Cada operación persiste solamente su cita y comprueba atómicamente el registro leído; el navegador envía `expectedRevision` en actualizaciones y reclasificaciones. Una ficha obsoleta o una modificación simultánea responde 409; sin versión responde 428. Las restricciones de intervalos siguen siendo la última defensa ante traslapes.
+- Los formularios administrativos interpretan horarios en Monterrey y las preferencias disponibles deben terminar antes de las 19:00.
+
+### Exportación de evaluación
+
+`GET /api/metrics` requiere sesión del personal y descarga JSON sin nombres, teléfonos ni domicilios. Contiene tiempos, estados, causas de exclusión y resumen de los indicadores; los folios siguen siendo identificadores seudónimos.
+
+Se puede limitar el periodo con `from` y `to` ISO, con extremo final exclusivo, por ejemplo:
+
+```text
+/api/metrics?from=2026-11-22T00:00:00-06:00&to=2026-12-07T00:00:00-06:00
+```
+
+Sustituye el inicio de ejemplo por la fecha real de puesta en operación. El tiempo de agendamiento selecciona solicitudes por recepción. La puntualidad selecciona visitas por llegada; para informar exclusiones usa el horario asignado o, si falta, la recepción. El archivo indica si cada registro pertenece a cada grupo.
+
+La puntualidad considera llegada anterior o igual al inicio acordado, sin tolerancia añadida. Confirma que este criterio coincide con el utilizado en los registros históricos antes de comparar. Las referencias 30.4 minutos y 75% proceden de la especificación proporcionada; el software no certifica su origen ni la validez del Excel histórico. Las metas son máximo 19.5 minutos y mínimo 90%.
+
+### Evaluación real de JEV
+
+1. Copia `docs/jev-matriz-plantilla.json` a una matriz privada y completa las 30 descripciones. No contiene casos ni referencias inventadas.
+2. El técnico establece las referencias, su nombre y la fecha de revisión antes de ejecutar el modelo. Deben estar representadas las cinco categorías y los cuatro niveles de prioridad; la distribución aparece en el informe.
+3. Configura `AI_GATEWAY_API_KEY` y ejecuta:
+
+```bash
+npm run evaluate:jev -- matriz-privada.json resultados-jev.json
+```
+
+El comando utiliza la misma integración que la aplicación, consume el servicio y puede generar cargos. No lo ejecutes como parte del build. No envía datos a la agenda. La matriz se conserva antes de llamar al modelo y se guarda cada intento; se permite un reintento por fallo técnico y se conserva la primera respuesta válida. El informe compara la prioridad original de JEV (`rawPriority`), antes del ajuste local por señales de riesgo. Los fallbacks no cuentan como respuestas JEV. Solo acepta la evaluación si hay 30 respuestas genuinas y al menos 24 aciertos por función; informa por separado la subestimación de prioridad. Una prueba con respuestas simuladas valida el cálculo, no demuestra la precisión real de JEV.
+
+### Despliegue y evidencias pendientes
+
+Consulta `docs/IMPLEMENTACION.md` para instalar, redesplegar y comprobar Neon, restauración y evidencias de evaluación. Actualizar el código descargado no modifica automáticamente el sitio en Vercel.
+
+La comparación con el documento y el alcance de las comprobaciones se encuentran en [docs/VERIFICACION.md](docs/VERIFICACION.md).

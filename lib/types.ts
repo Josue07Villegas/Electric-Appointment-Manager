@@ -17,6 +17,8 @@ export type Classification = {
   source: string;
   model?: string;
   note?: string;
+  rawPriority?: Priority;
+  safetyOverride?: boolean;
 };
 
 export type Appointment = {
@@ -24,6 +26,7 @@ export type Appointment = {
   folio: string;
   createdAt: string;
   updatedAt?: string;
+  revision: number;
   scheduledAt: string | null;
   durationMin: number | null;
   preferredSlots: string[];
@@ -40,6 +43,9 @@ export type Appointment = {
   technician: string;
   notes: string;
   completedAt: string | null;
+  firstConfirmedAt: string | null;
+  arrivedAt: string | null;
+  arrivalScheduledAt: string | null;
 };
 
 export type AppointmentInput = Pick<
@@ -48,6 +54,7 @@ export type AppointmentInput = Pick<
 >;
 
 export type DashboardStats = {
+  kpis: OperationalKpis;
   total: number;
   today: number;
   pendingReview: number;
@@ -55,4 +62,9 @@ export type DashboardStats = {
   completionRate: number;
   byStatus: Record<AppointmentStatus, number>;
   byPriority: Record<Priority, number>;
+};
+
+export type OperationalKpis = {
+  scheduling: { averageMinutes: number | null; valid: number; excluded: number; exclusionReasons: Record<string, number>; reductionPercent: number | null; targetMet: boolean | null };
+  punctuality: { percent: number | null; valid: number; punctual: number; excluded: number; exclusionReasons: Record<string, number>; increasePercent: number | null; targetMet: boolean | null };
 };

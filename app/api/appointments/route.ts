@@ -1,8 +1,9 @@
 import crypto from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { classifyAppointment } from "@/lib/classifier";
+import { compareAppointments } from "@/lib/metrics";
 import { sanitizeAppointment, validateAppointmentInput } from "@/lib/appointments";
-import { conflictsWithExisting, createFolio, isWithinBusinessHours, readAppointments, writeAppointments } from "@/lib/store";
+import { businessDateKey, conflictsWithExisting, isWithinBusinessHours, readAppointments, saveAppointment } from "@/lib/store";
 import type { Appointment } from "@/lib/types";
 import { isAuthorizedStaff } from "@/lib/auth";
 
@@ -18,13 +19,14 @@ export async function GET(request: NextRequest) {
   const filtered = appointments
     .filter((item) => !status || item.status === status)
     .filter((item) => !priority || item.classification?.priority === priority)
-    .filter((item) => !date || item.scheduledAt?.slice(0, 10) === date)
+    .filter((item) => !date || (item.scheduledAt && businessDateKey(new Date(item.scheduledAt)) === date))
     .filter((item) => !query || [item.folio, item.clientName, item.phone, item.address, item.description].some((value) => value.toLowerCase().includes(query)))
-    .sort((a, b) => (a.scheduledAt || "").localeCompare(b.scheduledAt || ""));
+    .sort(compareAppointments);
   return NextResponse.json({ appointments: filtered, total: filtered.length });
 }
 
 export async function POST(request: NextRequest) {
+  const receivedAt = new Date().toISOString();
   const body = await request.json() as Record<string, unknown>;
   const validation = validateAppointmentInput(body);
   if (validation) return NextResponse.json({ error: validation }, { status: 400 });
@@ -42,8 +44,12 @@ export async function POST(request: NextRequest) {
   if (conflict) return NextResponse.json({ error: "El nuevo horario se cruza con otra cita", details: { conflictFolio: conflict.folio } }, { status: 409 });
   const appointment: Appointment = {
     id: crypto.randomUUID(),
-    folio: createFolio(appointments),
-    createdAt: new Date().toISOString(),
+    folio: `ELEC-${crypto.randomUUID().replaceAll("-", "").slice(0, 12).toUpperCase()}`,
+    createdAt: receivedAt,
+    revision: 0,
+    firstConfirmedAt: internalScheduling ? new Date().toISOString() : null,
+    arrivedAt: null,
+    arrivalScheduledAt: null,
     ...input,
     scheduledAt,
     durationMin,
@@ -53,9 +59,8 @@ export async function POST(request: NextRequest) {
     technician: "Técnico principal",
     completedAt: null,
   };
-  appointments.push(appointment);
   try {
-    await writeAppointments(appointments);
+    await saveAppointment(appointment);
   } catch (error) {
     if (error instanceof Error && (error.message.includes("appointments_scheduled_no_overlap") || error.message.includes("appointment time conflict"))) return NextResponse.json({ error: "El nuevo horario se cruza con otra cita" }, { status: 409 });
     throw error;

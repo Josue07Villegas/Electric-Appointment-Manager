@@ -1,5 +1,5 @@
-import type { AppointmentInput, Classification, Priority } from "@/lib/types";
-import { PRIORITIES } from "@/lib/types";
+import type { AppointmentInput, Classification, Priority } from "./types";
+import { PRIORITIES } from "./types";
 
 const SERVICE_TYPES = ["Diagnóstico", "Instalación", "Mantenimiento", "Reparación", "Cotización"] as const;
 
@@ -86,11 +86,14 @@ export async function classifyAppointment(input: AppointmentInput): Promise<Clas
     if (!response.ok) throw new Error(`Jev respondió con estado ${response.status}`);
     const result = await response.json() as JevResponse;
     const answers = result.answers || {};
+    if (!SERVICE_TYPES.includes(answers.service_type?.choice as (typeof SERVICE_TYPES)[number]) || !PRIORITIES.includes(answers.priority?.choice as Priority)) throw new Error("Respuesta JEV inválida");
     const safetyOverride = hasSafetyRisk(input.riskSignals);
     return {
       serviceType: SERVICE_TYPES.includes(answers.service_type?.choice as (typeof SERVICE_TYPES)[number]) ? answers.service_type!.choice! : "Diagnóstico",
       priority: safetyOverride ? "Crítica" : PRIORITIES.includes(answers.priority?.choice as Priority) ? answers.priority!.choice as Priority : "Normal",
       source: "Jev",
+      rawPriority: answers.priority!.choice as Priority,
+      safetyOverride,
       model: result.model || JEV_MODEL,
     };
   } catch {
