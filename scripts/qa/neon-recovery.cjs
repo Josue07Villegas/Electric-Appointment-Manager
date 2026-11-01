@@ -1,0 +1,46 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const assert = require('node:assert/strict');
+const { spawnSync } = require('node:child_process');
+const { neon } = require('@neondatabase/serverless');
+const [branchMetadata, urlFile, snapshotFile, output, resumeFrom] = process.argv.slice(2);
+if (!output) throw Error('Uso: node neon-recovery.cjs rama.json conexion.txt snapshot.json salida.json');
+if (fs.existsSync(output)) throw Error('La evidencia de salida ya existe.');
+const b = JSON.parse(fs.readFileSync(branchMetadata));
+const snapshot = JSON.parse(fs.readFileSync(snapshotFile));
+const url = fs.readFileSync(urlFile, 'utf8').trim();
+if (b.branch.primary || b.branch.default || !b.branch.name.startsWith('qa-pf-') || new URL(url).hostname !== b.endpoints[0].host || snapshot.source_branch_id !== b.branch.id) throw Error('La prueba requiere una rama QA aislada y su propio snapshot.');
+const sql = neon(url);
+const report = resumeFrom ? { ...JSON.parse(fs.readFileSync(resumeFrom)), status: 'en ejecución', resumedAt: new Date().toISOString(), priorAttempt: path.basename(resumeFrom) } : { id: 'PF-16', startedAt: new Date().toISOString(), sourceBranch: b.branch.id, snapshot: snapshot.id, status: 'en ejecución', procedure: 'Snapshot administrado de Neon, eliminación controlada de un registro sintético y restauración a otra rama sin finalizar sobre la rama de origen.', records: [] };
+const save = () => fs.writeFileSync(output, JSON.stringify(report, null, 2));
+const cli = args => { const r = spawnSync('neon', [...args, '--output', 'json', '--no-analytics'], { encoding: 'utf8', timeout: 90000 }); if (r.status !== 0) throw Error(r.stderr || r.stdout || 'Error del cliente Neon'); return JSON.parse(r.stdout); };
+const digest = rows => crypto.createHash('sha256').update(JSON.stringify(rows.map(r => [r.id, r.payload]))).digest('hex');
+(async () => {
+  let restored;
+  if (!resumeFrom) {
+  const before = await sql.query('SELECT id, status, payload FROM appointments ORDER BY id');
+  assert(before.length > 0); const target = before.find(r => r.status === 'Completada' && JSON.parse(r.payload).description === 'Solicitud sintética KPI'); assert(target);
+  const body = JSON.parse(target.payload); assert(body.clientName.startsWith('Cliente sintético'));
+  report.before = { count: before.length, sha256: digest(before), targetId: target.id }; save();
+  await sql.query('DELETE FROM appointments WHERE id=$1', [target.id]);
+  assert.equal((await sql.query('SELECT id FROM appointments WHERE id=$1', [target.id])).length, 0);
+  report.deletionVerified = true; save();
+  restored = cli(['snapshots', 'restore', snapshot.id, '--project-id', b.branch.project_id, '--name', 'qa-pf16-recuperada-20261031']);
+  fs.writeFileSync(path.join(path.dirname(output), 'recuperacion-neon-metadatos.json'), JSON.stringify(restored, null, 2));
+  } else { restored = JSON.parse(fs.readFileSync(path.join(path.dirname(resumeFrom), 'recuperacion-neon-metadatos.json'))); }
+  delete report.error;
+  const branch = restored.restored_branch || restored.branch || restored.branches?.[0] || restored;
+  assert(branch.id && branch.id !== b.branch.id);
+  report.restoredBranch = branch.id; save();
+  cli(['branches', 'set-expiration', branch.id, '--project-id', b.branch.project_id, '--expires-at', new Date(Date.now() + 3600000).toISOString()]);
+  const cs = spawnSync('neon', ['connection-string', branch.id, '--project-id', b.branch.project_id, '--role-name', 'neondb_owner', '--database-name', 'neondb', '--no-analytics'], { encoding: 'utf8' });
+  if (cs.status !== 0) throw Error(cs.stderr || 'No se pudo conectar con la recuperación.');
+  const recovered = neon(cs.stdout.trim());
+  const after = await recovered.query('SELECT id, status, payload FROM appointments ORDER BY id');
+  assert.equal(digest(after), report.before.sha256);
+  const constraints = await recovered.query("SELECT conname, pg_get_constraintdef(oid) AS definition FROM pg_constraint WHERE conrelid='appointments'::regclass AND conname='appointments_scheduled_no_overlap'");
+  assert.equal(constraints.length, 1); assert(constraints[0].definition.includes('EXCLUDE'));
+  report.after = { count: after.length, sha256: digest(after), targetRecovered: after.some(r => r.id === report.before.targetId), overlapConstraint: constraints[0] };
+  report.status = 'aprobado'; report.observed = 'Se recuperaron todos los registros del snapshot en otra rama con la restricción de intervalos conservada; no se restauró ni modificó producción.';
+})().catch(error => { report.status = 'fallido'; report.error = String(error.message).replaceAll(url, '[conexión privada]').slice(0, 1500); process.exitCode = 1; }).finally(() => { report.finishedAt = new Date().toISOString(); save(); console.log(JSON.stringify({ id: report.id, status: report.status, restoredBranch: report.restoredBranch, error: report.error })); });

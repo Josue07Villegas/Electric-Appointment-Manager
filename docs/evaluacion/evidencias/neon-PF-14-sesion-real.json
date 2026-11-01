@@ -1,0 +1,18 @@
+{
+  "id": "PF-14",
+  "startedAt": "2026-10-31T07:06:48.365Z",
+  "branch": "br-holy-voice-b4p1w6js",
+  "status": "fallido",
+  "environment": "Next.js local y Neon Auth real de una rama aislada, con PostgreSQL real",
+  "actor": "Ejecución automatizada asistida por Codex",
+  "credentials": "Cuenta sintética temporal; valores de acceso omitidos de la evidencia",
+  "steps": [
+    {
+      "endpoint": "/api/auth/sign-up/email",
+      "status": 403
+    }
+  ],
+  "scope": "Prueba de las rutas HTTP y del SDK real de sesión. No es una prueba visual del navegador ni usa cuentas de producción.",
+  "error": "/api/auth/sign-up/email: 403 Invalid origin",
+  "finishedAt": "2026-10-31T07:06:56.830Z"
+}

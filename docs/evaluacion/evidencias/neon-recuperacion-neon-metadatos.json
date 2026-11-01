@@ -1,0 +1,83 @@
+{
+  "restored_branch": {
+    "id": "br-long-wind-b4cy5hmj",
+    "project_id": "restless-fire-58809586",
+    "parent_lsn": "0/1A7EBD0",
+    "name": "qa-pf16-recuperada-20261031",
+    "slug": "br-long-wind-b4cy5hmj",
+    "current_state": "init",
+    "pending_state": "ready",
+    "state_changed_at": "2026-10-31T07:04:47Z",
+    "creation_source": "console",
+    "primary": false,
+    "default": false,
+    "protected": false,
+    "cpu_used_sec": 0,
+    "compute_time_seconds": 0,
+    "active_time_seconds": 0,
+    "written_data_bytes": 0,
+    "data_transfer_bytes": 0,
+    "created_at": "2026-10-31T07:04:47Z",
+    "updated_at": "2026-10-31T07:04:47Z",
+    "init_source": "parent-schema",
+    "restore_status": "restored",
+    "restored_from": "snap-aged-bonus-b46kylud",
+    "restored_as": "br-holy-voice-b4p1w6js"
+  },
+  "operations": [
+    {
+      "id": "2fd01446-997c-4ee3-866f-9a238daeb57d",
+      "project_id": "restless-fire-58809586",
+      "branch_id": "br-silent-leaf-b4p4dhm0",
+      "action": "timeline_unarchive",
+      "status": "running",
+      "failures_count": 0,
+      "created_at": "2026-10-31T07:04:47Z",
+      "updated_at": "2026-10-31T07:04:47Z",
+      "total_duration_ms": 0
+    },
+    {
+      "id": "5ec52f9a-25aa-451e-8014-dbb482716527",
+      "project_id": "restless-fire-58809586",
+      "branch_id": "br-long-wind-b4cy5hmj",
+      "action": "create_branch",
+      "status": "scheduling",
+      "failures_count": 0,
+      "created_at": "2026-10-31T07:04:47Z",
+      "updated_at": "2026-10-31T07:04:47Z",
+      "total_duration_ms": 0
+    },
+    {
+      "id": "3de1e862-06e8-4dc4-bb4e-f8be2f9b9102",
+      "project_id": "restless-fire-58809586",
+      "branch_id": "br-long-wind-b4cy5hmj",
+      "endpoint_id": "ep-noisy-star-b4ftajwr",
+      "action": "start_compute",
+      "status": "scheduling",
+      "failures_count": 0,
+      "created_at": "2026-10-31T07:04:47Z",
+      "updated_at": "2026-10-31T07:04:47Z",
+      "total_duration_ms": 0
+    },
+    {
+      "id": "848dd85e-ba0c-4f6a-99a5-f642d48c339c",
+      "project_id": "restless-fire-58809586",
+      "action": "epc_sync",
+      "status": "scheduling",
+      "failures_count": 0,
+      "created_at": "2026-10-31T07:04:47Z",
+      "updated_at": "2026-10-31T07:04:47Z",
+      "total_duration_ms": 0
+    },
+    {
+      "id": "71e3a373-7f88-466d-962c-ca33785185d6",
+      "project_id": "restless-fire-58809586",
+      "action": "epc_sync",
+      "status": "scheduling",
+      "failures_count": 0,
+      "created_at": "2026-10-31T07:04:47Z",
+      "updated_at": "2026-10-31T07:04:47Z",
+      "total_duration_ms": 0
+    }
+  ]
+}

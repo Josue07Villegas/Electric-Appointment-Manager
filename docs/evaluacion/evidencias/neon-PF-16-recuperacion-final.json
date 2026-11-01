@@ -1,0 +1,20 @@
+{
+  "id": "PF-16",
+  "startedAt": "2026-10-31T07:04:46.228Z",
+  "sourceBranch": "br-holy-voice-b4p1w6js",
+  "snapshot": "snap-aged-bonus-b46kylud",
+  "status": "fallido",
+  "procedure": "Snapshot administrado de Neon, eliminación controlada de un registro sintético y restauración a otra rama sin finalizar sobre la rama de origen.",
+  "records": [],
+  "before": {
+    "count": 17,
+    "sha256": "a68de934d1ea6c1bdf6b0034d2255b850c11b8cfaf5cc6c774f9c68d4180bac2",
+    "targetId": "1b6b8e22-8211-40bc-a050-968e803e7edd"
+  },
+  "deletionVerified": true,
+  "finishedAt": "2026-10-31T07:05:42.525Z",
+  "resumedAt": "2026-10-31T07:05:40.169Z",
+  "priorAttempt": "PF-16-recuperacion.json",
+  "restoredBranch": "br-long-wind-b4cy5hmj",
+  "error": "target is not defined"
+}

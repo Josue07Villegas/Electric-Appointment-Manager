@@ -1,0 +1,45 @@
+{
+  "id": "Complemento PF-03",
+  "phase": "revoked",
+  "startedAt": "2026-11-01T04:39:55.952Z",
+  "deployment": {
+    "id": "dpl_GfMnmDGgubJvBry5UvWsd4cMy3de",
+    "url": "electroagenda-dk26shj91-jsa-07.vercel.app"
+  },
+  "domain": "https://electroagenda.vercel.app",
+  "status": "aprobado",
+  "steps": [
+    {
+      "endpoint": "/api/auth/sign-in/email",
+      "method": "POST",
+      "status": 200,
+      "authenticatedSyntheticUser": true
+    },
+    {
+      "endpoint": "/api/auth/get-session",
+      "method": "GET",
+      "status": 200,
+      "activeSyntheticSession": true
+    },
+    {
+      "endpoint": "/api/appointments",
+      "method": "GET",
+      "status": 401,
+      "noAdministrativeData": true
+    },
+    {
+      "endpoint": "/",
+      "method": "GET",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "endpoint": "/api/auth/sign-out",
+      "method": "POST",
+      "status": 200
+    }
+  ],
+  "scope": "Rutas HTTP reales del dominio de producción, cuenta sintética y lectura administrativa. Sin capturas de navegador ni constancia humana.",
+  "expected": "Inicio y sesión válidos; consulta administrativa 401 y despacho redirigido al login.",
+  "finishedAt": "2026-11-01T04:39:58.420Z"
+}

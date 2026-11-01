@@ -1,0 +1,525 @@
+{
+  "startedAt": "2026-10-31T07:01:19.727Z",
+  "finishedAt": "2026-10-31T07:07:42.081Z",
+  "commit": "5704a88268deba8f4acf13da4f00046765679556",
+  "harnessSha256": "bc4e24f39071351b11d8a09b2b0eee1d4a2e9dafcf8c5219f9624607d755de50",
+  "node": "v22.23.4",
+  "environment": "PostgreSQL/Neon en rama de pruebas",
+  "neonBranch": "br-holy-voice-b4p1w6js",
+  "actor": "Ejecución automatizada asistida por Codex; revisión humana pendiente",
+  "dataNature": "Datos sintéticos de laboratorio; sin registros operativos ni datos personales reales",
+  "authScope": "Se ejecutan los handlers reales con autorización de personal controlada por el arnés. No se suplanta una sesión Neon real.",
+  "records": [
+    {
+      "id": "PF-01",
+      "scenario": "Registrar solicitud válida sin cuenta",
+      "steps": [
+        "Desactivar autorización del arnés.",
+        "Enviar datos sintéticos válidos.",
+        "Leer la fila persistida."
+      ],
+      "expected": "HTTP 201, recepción conservada, solicitud pendiente sin cita confirmada.",
+      "startedAt": "2026-10-31T07:01:20.734Z",
+      "status": "aprobado",
+      "observed": "Solicitud recibida sin cuenta; recepción dentro del intervalo de ejecución.",
+      "evidence": {
+        "id": "c581ae0f-bc9d-4914-8406-07da90c990eb",
+        "status": "Pendiente",
+        "createdAt": "2026-10-31T07:01:20.739Z",
+        "scheduledAt": null,
+        "firstConfirmedAt": null
+      },
+      "finishedAt": "2026-10-31T07:01:21.676Z"
+    },
+    {
+      "id": "PF-02",
+      "scenario": "Rechazar datos obligatorios incompletos",
+      "steps": [
+        "Omitir cada campo obligatorio en una solicitud.",
+        "Comparar el número de registros antes y después."
+      ],
+      "expected": "Cada intento responde 400 y no persiste filas.",
+      "startedAt": "2026-10-31T07:01:21.677Z",
+      "status": "aprobado",
+      "observed": "Cinco omisiones rechazadas; sin incremento de filas.",
+      "evidence": [
+        {
+          "omitted": "clientName",
+          "status": 400
+        },
+        {
+          "omitted": "phone",
+          "status": 400
+        },
+        {
+          "omitted": "address",
+          "status": 400
+        },
+        {
+          "omitted": "propertyType",
+          "status": 400
+        },
+        {
+          "omitted": "description",
+          "status": 400
+        }
+      ],
+      "finishedAt": "2026-10-31T07:01:21.769Z"
+    },
+    {
+      "id": "PF-03",
+      "scenario": "Rechazar operaciones administrativas sin autorización",
+      "steps": [
+        "Solicitar listado, detalle, cambios, reclasificación, métricas, estadísticas y configuración sin autorización."
+      ],
+      "expected": "HTTP 401 en las siete operaciones.",
+      "startedAt": "2026-10-31T07:01:21.769Z",
+      "status": "aprobado",
+      "observed": "Se rechazaron las siete operaciones.",
+      "evidence": {
+        "statuses": [
+          401,
+          401,
+          401,
+          401,
+          401,
+          401,
+          401
+        ],
+        "scope": "Se ejecutan los handlers reales con autorización de personal controlada por el arnés. No se suplanta una sesión Neon real."
+      },
+      "finishedAt": "2026-10-31T07:01:21.775Z"
+    },
+    {
+      "id": "PF-04",
+      "scenario": "Ordenar pendientes por prioridad y recepción",
+      "steps": [
+        "Persistir cinco pendientes sintéticos con cuatro prioridades.",
+        "Consultar únicamente sus folios mediante el filtro."
+      ],
+      "expected": "Crítica, Alta, Normal antigua, Normal nueva, Baja.",
+      "startedAt": "2026-10-31T07:01:21.775Z",
+      "status": "aprobado",
+      "observed": "Orden de prioridad y FIFO verificado.",
+      "evidence": [
+        {
+          "id": "42795b2b-c54b-4748-b747-82e254b38db6",
+          "createdAt": "2027-01-04T14:20:00Z",
+          "priority": "Crítica"
+        },
+        {
+          "id": "88bdacaf-77d7-4601-9e44-c0cd5be4518a",
+          "createdAt": "2027-01-04T14:30:00Z",
+          "priority": "Alta"
+        },
+        {
+          "id": "f02e16de-031b-4dd3-b705-bd445be16c27",
+          "createdAt": "2027-01-04T14:05:00Z",
+          "priority": "Normal"
+        },
+        {
+          "id": "f6a7807d-5d20-46f7-a50c-3de72f7dd2f3",
+          "createdAt": "2027-01-04T14:10:00Z",
+          "priority": "Normal"
+        },
+        {
+          "id": "8bd06047-2af9-4ee6-abbc-92de21803789",
+          "createdAt": "2027-01-04T14:00:00Z",
+          "priority": "Baja"
+        }
+      ],
+      "finishedAt": "2026-10-31T07:01:22.059Z"
+    },
+    {
+      "id": "PF-05",
+      "scenario": "Confirmar un horario disponible",
+      "steps": [
+        "Crear un pendiente.",
+        "Confirmar el 4 de noviembre de 2030 a las 09:00 de Monterrey por 60 minutos."
+      ],
+      "expected": "HTTP 200, primera confirmación y horario persistidos.",
+      "startedAt": "2026-10-31T07:01:22.059Z",
+      "status": "aprobado",
+      "observed": "Cita confirmada y persistida.",
+      "evidence": {
+        "id": "a8bea1ea-6c9e-483a-8e02-59eb3375c217",
+        "firstConfirmedAt": "2026-10-31T07:01:22.219Z",
+        "scheduledAt": "2030-11-04T15:00:00.000Z",
+        "durationMin": 60
+      },
+      "finishedAt": "2026-10-31T07:01:22.308Z"
+    },
+    {
+      "id": "PF-06",
+      "scenario": "Rechazar un intervalo superpuesto",
+      "steps": [
+        "Intentar confirmar otro pendiente a las 09:30 durante la cita anterior.",
+        "Comparar ambos registros."
+      ],
+      "expected": "HTTP 409; la cita original y el pendiente se conservan.",
+      "startedAt": "2026-10-31T07:01:22.308Z",
+      "status": "aprobado",
+      "observed": "Conflicto rechazado sin modificar las citas.",
+      "evidence": {
+        "status": 409,
+        "message": "El nuevo horario se cruza con otra cita",
+        "pendingId": "8cac121c-cf7a-4a26-9219-fdfaab2d1106"
+      },
+      "finishedAt": "2026-10-31T07:01:22.585Z"
+    },
+    {
+      "id": "PF-07",
+      "scenario": "Confirmar simultáneamente intervalos superpuestos",
+      "steps": [
+        "Crear dos pendientes distintos.",
+        "Lanzar dos PATCH concurrentes para intervalos superpuestos.",
+        "Comprobar las filas definitivas."
+      ],
+      "expected": "Exactamente una respuesta 200 y una 409; solo una confirmación persistida.",
+      "startedAt": "2026-10-31T07:01:22.585Z",
+      "status": "aprobado",
+      "observed": "Solo una confirmación concurrente se conservó.",
+      "evidence": {
+        "backend": "PostgreSQL/Neon en rama de pruebas",
+        "statuses": [
+          200,
+          409
+        ],
+        "records": [
+          {
+            "id": "c62e0ee9-5cb6-42ab-a1cc-1dcf660f0e65",
+            "status": "Confirmada",
+            "scheduledAt": "2030-11-05T15:00:00.000Z"
+          },
+          {
+            "id": "ee9db739-c86c-48b0-a188-85092bc0efe6",
+            "status": "Pendiente",
+            "scheduledAt": null
+          }
+        ]
+      },
+      "finishedAt": "2026-10-31T07:01:23.044Z"
+    },
+    {
+      "id": "PF-08",
+      "scenario": "Reprogramar conservando la primera confirmación",
+      "steps": [
+        "Mover PF-05 a las 11:00 de Monterrey.",
+        "Intentar moverla al intervalo ocupado de PF-07.",
+        "Intentar un domingo."
+      ],
+      "expected": "La reprogramación válida conserva firstConfirmedAt; conflicto 409 y domingo 400.",
+      "startedAt": "2026-10-31T07:01:23.045Z",
+      "status": "aprobado",
+      "observed": "Reprogramación válida conservada; dos horarios inválidos rechazados.",
+      "evidence": {
+        "id": "a8bea1ea-6c9e-483a-8e02-59eb3375c217",
+        "firstConfirmedAt": "2026-10-31T07:01:22.219Z",
+        "scheduledAt": "2030-11-04T17:00:00.000Z",
+        "rejected": [
+          409,
+          400
+        ]
+      },
+      "finishedAt": "2026-10-31T07:01:23.270Z"
+    },
+    {
+      "id": "PF-09",
+      "scenario": "Cancelar y liberar el intervalo",
+      "steps": [
+        "Cancelar PF-05.",
+        "Confirmar un pendiente nuevo en el mismo intervalo.",
+        "Comparar la primera confirmación del cancelado."
+      ],
+      "expected": "Ambas operaciones 200; el cancelado conserva firstConfirmedAt.",
+      "startedAt": "2026-10-31T07:01:23.270Z",
+      "status": "aprobado",
+      "observed": "Intervalo liberado y reutilizado.",
+      "evidence": {
+        "cancelledId": "a8bea1ea-6c9e-483a-8e02-59eb3375c217",
+        "firstConfirmedAt": "2026-10-31T07:01:22.219Z",
+        "replacementId": "587895c2-b53e-4cd3-8ecc-2c542b99c7f1",
+        "scheduledAt": "2030-11-04T17:00:00.000Z"
+      },
+      "finishedAt": "2026-10-31T07:01:23.607Z"
+    },
+    {
+      "id": "PF-10",
+      "scenario": "Registrar llegada y conservar el horario acordado",
+      "steps": [
+        "Pasar la cita a En servicio.",
+        "Comparar llegada con las marcas de inicio y fin del ensayo.",
+        "Intentar reprogramar después de llegar y completar la visita."
+      ],
+      "expected": "Llegada actual y horario congelado; reprogramación 400; conservación al completar.",
+      "startedAt": "2026-10-31T07:01:23.608Z",
+      "status": "aprobado",
+      "observed": "Llegada real del ensayo registrada; horario y llegada conservados al completar.",
+      "evidence": {
+        "id": "587895c2-b53e-4cd3-8ecc-2c542b99c7f1",
+        "arrivedAt": "2026-10-31T07:01:23.662Z",
+        "arrivalScheduledAt": "2030-11-04T17:00:00.000Z",
+        "completedAt": "2026-10-31T07:01:23.794Z"
+      },
+      "finishedAt": "2026-10-31T07:01:23.836Z"
+    },
+    {
+      "id": "PF-11",
+      "scenario": "Calcular KPI y exclusiones con datos mixtos",
+      "steps": [
+        "Preparar seis registros sintéticos de enero de 2027.",
+        "Consultar métricas para ese periodo.",
+        "Comprobar promedio, puntualidad, exclusiones y ausencia de contactos."
+      ],
+      "expected": "Promedio 20 minutos (3 válidos, 3 excluidos); puntualidad 50% (2 válidos, 4 excluidos).",
+      "startedAt": "2026-10-31T07:01:23.837Z",
+      "status": "aprobado",
+      "observed": "Cálculo y denominadores verificados con una llegada un segundo tarde.",
+      "evidence": {
+        "scheduling": {
+          "averageMinutes": 20,
+          "valid": 3,
+          "excluded": 3,
+          "exclusionReasons": {
+            "cancelada_sin_confirmacion_verificable": 1,
+            "sin_primera_confirmacion_verificable": 1,
+            "pendiente": 1
+          },
+          "reductionPercent": 34.210526315789465,
+          "targetMet": false
+        },
+        "punctuality": {
+          "percent": 50,
+          "valid": 2,
+          "punctual": 1,
+          "excluded": 4,
+          "exclusionReasons": {
+            "cancelada": 2,
+            "sin_llegada_u_horario_verificables": 1,
+            "visita_no_realizada": 1
+          },
+          "increasePercent": -33.33333333333333,
+          "targetMet": false
+        }
+      },
+      "finishedAt": "2026-10-31T07:01:24.188Z"
+    },
+    {
+      "id": "PF-12",
+      "scenario": "Calcular KPI sin registros válidos",
+      "steps": [
+        "Consultar un periodo futuro vacío."
+      ],
+      "expected": "Promedios y porcentajes null; muestras cero; sin división por cero.",
+      "startedAt": "2026-10-31T07:01:24.189Z",
+      "status": "aprobado",
+      "observed": "Sin datos válidos; no se informa cero como porcentaje de éxito.",
+      "evidence": {
+        "scheduling": {
+          "averageMinutes": null,
+          "valid": 0,
+          "excluded": 0,
+          "exclusionReasons": {},
+          "reductionPercent": null,
+          "targetMet": null
+        },
+        "punctuality": {
+          "percent": null,
+          "valid": 0,
+          "punctual": 0,
+          "excluded": 0,
+          "exclusionReasons": {},
+          "increasePercent": null,
+          "targetMet": null
+        }
+      },
+      "finishedAt": "2026-10-31T07:01:24.235Z"
+    },
+    {
+      "id": "PF-13",
+      "scenario": "Detectar edición desde dos sesiones",
+      "steps": [
+        "Leer dos copias de la misma revisión.",
+        "Guardar observaciones con la primera copia.",
+        "Intentar guardar y reclasificar con la copia obsoleta."
+      ],
+      "expected": "Primera operación 200; copia obsoleta 409; notas nuevas conservadas.",
+      "startedAt": "2026-10-31T07:01:24.236Z",
+      "status": "aprobado",
+      "observed": "No hubo sobrescritura silenciosa.",
+      "evidence": {
+        "statuses": [
+          200,
+          409,
+          409
+        ],
+        "revisionBefore": 3,
+        "revisionAfter": 4,
+        "authScope": "Se ejecutan los handlers reales con autorización de personal controlada por el arnés. No se suplanta una sesión Neon real."
+      },
+      "finishedAt": "2026-10-31T07:01:24.545Z"
+    },
+    {
+      "id": "PF-14",
+      "scenario": "Conservar datos al cerrar y abrir sesión",
+      "steps": [
+        "Crear una cuenta sintética en Neon Auth de la rama QA mediante el servidor local real.",
+        "Consultar el historial con sesión válida.",
+        "Cerrar sesión y comprobar HTTP 401 al consultar.",
+        "Iniciar sesión nuevamente y comparar los datos del servicio completado."
+      ],
+      "expected": "Datos conservados y sesión real de Neon Auth comprobada.",
+      "startedAt": "2026-10-31T07:07:30.827Z",
+      "status": "aprobado",
+      "observed": "Una sesión real fue cerrada y abierta nuevamente; el servidor rechazó la consulta sin sesión y conservó los datos del servicio completado.",
+      "evidence": {
+        "persistedId": "bd1ad943-82b4-40d0-be89-e6496c662679",
+        "status": "Completada",
+        "reception": "2027-01-04T15:00:00Z",
+        "firstConfirmedAt": "2027-01-04T15:20:00Z",
+        "arrivedAt": "2027-01-05T15:00:00Z",
+        "arrivalScheduledAt": "2027-01-05T15:00:00Z",
+        "rowsBefore": 16,
+        "rowsAfter": 16
+      },
+      "finishedAt": "2026-10-31T07:07:42.081Z",
+      "branch": "br-holy-voice-b4p1w6js",
+      "environment": "Next.js local y Neon Auth real de una rama aislada, con PostgreSQL real",
+      "actor": "Ejecución automatizada asistida por Codex",
+      "credentials": "Cuenta sintética temporal; valores de acceso omitidos de la evidencia",
+      "scope": "Prueba de las rutas HTTP y del SDK real de sesión. No es una prueba visual del navegador ni usa cuentas de producción.",
+      "priorHarnessStatus": "bloqueado",
+      "evidenceFile": "evidencias/neon-PF-14-sesion-verificada.json",
+      "httpSteps": [
+        {
+          "endpoint": "/api/auth/sign-up/email",
+          "status": 200
+        },
+        {
+          "endpoint": "/api/appointments",
+          "status": 200
+        },
+        {
+          "endpoint": "/api/auth/sign-out",
+          "status": 200
+        },
+        {
+          "endpoint": "/api/appointments",
+          "status": 401
+        },
+        {
+          "endpoint": "/api/auth/sign-in/email",
+          "status": 200
+        },
+        {
+          "endpoint": "/api/appointments",
+          "status": 200
+        },
+        {
+          "endpoint": "/api/auth/sign-out",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "PF-15",
+      "scenario": "Distinguir JEV real y respaldo ante indisponibilidad",
+      "steps": [
+        "Consultar JEV con una descripción sintética.",
+        "Interrumpir la red del clasificador dentro de ese proceso de prueba.",
+        "Comprobar los dos orígenes."
+      ],
+      "expected": "Respuesta real JEV y respaldo local identificado, sin almacenarlos en la agenda.",
+      "startedAt": "2026-10-31T07:01:26.121Z",
+      "status": "aprobado",
+      "observed": "JEV real respondió; el fallo de red produjo respaldo local distinguible. No es la evaluación de 30 casos.",
+      "evidence": {
+        "live": {
+          "serviceType": "Mantenimiento",
+          "priority": "Baja",
+          "source": "Jev",
+          "rawPriority": "Baja",
+          "safetyOverride": false,
+          "model": "typesafe-ai/jev"
+        },
+        "offline": {
+          "serviceType": "Mantenimiento",
+          "priority": "Baja",
+          "source": "respaldo local",
+          "note": "Jev no estuvo disponible; revisar la clasificación."
+        }
+      },
+      "finishedAt": "2026-10-31T07:01:27.387Z"
+    },
+    {
+      "id": "PF-16",
+      "scenario": "Recuperar información en un entorno aislado",
+      "steps": [
+        "Crear un snapshot administrado de la rama QA.",
+        "Retirar un registro sintético únicamente de la rama QA y verificar su ausencia.",
+        "Restaurar el snapshot a una rama distinta sin finalizar sobre la rama de origen.",
+        "Comparar el hash de los 17 registros y consultar la restricción de exclusión."
+      ],
+      "expected": "Recuperación de Neon verificada en rama aislada, con límites documentados.",
+      "startedAt": "2026-10-31T07:04:46.228Z",
+      "status": "aprobado",
+      "observed": "Se recuperaron todos los registros del snapshot en otra rama con la restricción de intervalos conservada; no se restauró ni modificó producción.",
+      "evidence": {
+        "branch": "br-holy-voice-b4p1w6js"
+      },
+      "finishedAt": "2026-10-31T07:07:07.088Z",
+      "sourceBranch": "br-holy-voice-b4p1w6js",
+      "snapshot": "snap-aged-bonus-b46kylud",
+      "procedure": "Snapshot administrado de Neon, eliminación controlada de un registro sintético y restauración a otra rama sin finalizar sobre la rama de origen.",
+      "records": [],
+      "before": {
+        "count": 17,
+        "sha256": "a68de934d1ea6c1bdf6b0034d2255b850c11b8cfaf5cc6c774f9c68d4180bac2",
+        "targetId": "1b6b8e22-8211-40bc-a050-968e803e7edd"
+      },
+      "deletionVerified": true,
+      "resumedAt": "2026-10-31T07:07:04.587Z",
+      "priorAttempt": "evidencias/neon-PF-16-recuperacion-final.json",
+      "restoredBranch": "br-long-wind-b4cy5hmj",
+      "after": {
+        "count": 17,
+        "sha256": "a68de934d1ea6c1bdf6b0034d2255b850c11b8cfaf5cc6c774f9c68d4180bac2",
+        "targetRecovered": true,
+        "overlapConstraint": {
+          "conname": "appointments_scheduled_no_overlap",
+          "definition": "EXCLUDE USING gist (tsrange((scheduled_at AT TIME ZONE 'UTC'::text), ((scheduled_at AT TIME ZONE 'UTC'::text) + make_interval(mins => duration_min)), '[)'::text) WITH &&) WHERE (((status = ANY (ARRAY['Confirmada'::text, 'En camino'::text, 'En servicio'::text])) AND (scheduled_at IS NOT NULL) AND (duration_min IS NOT NULL)))"
+        }
+      },
+      "priorHarnessStatus": "bloqueado",
+      "evidenceFile": "evidencias/neon-PF-16-recuperacion-verificada.json"
+    }
+  ],
+  "emptyDatabaseVerified": true,
+  "summary": {
+    "aprobado": 16,
+    "fallido": 0,
+    "bloqueado": 0
+  },
+  "scope": "PF-01 a PF-13: handlers reales y PostgreSQL real, con autorización controlada por el arnés. PF-14: rutas HTTP, SDK y Neon Auth reales con cuenta sintética. PF-15: una respuesta real de JEV y una interrupción simulada. PF-16: snapshot y recuperación administrados reales de Neon. No es una prueba visual integral ni una validación de producción.",
+  "resolvedLabIncidents": [
+    "El aprovisionamiento de Neon Auth en la rama creada solo con esquema requirió restablecer permisos de sus roles y autorizar el origen local exacto. No se cambió producción.",
+    "El primer ensayo de sesión rechazó el origen local con HTTP 403. Tras autorizarlo en la rama QA, la sesión real pasó.",
+    "La restauración de Neon se creó correctamente desde el primer intento. Se corrigieron dos referencias del arnés para completar la lectura y comparación de su evidencia. Los intentos iniciales se conservan."
+  ],
+  "jevEvaluation": "La conexión real comprobada en PF-15 no sustituye la evaluación de los 30 escenarios. La matriz sigue pendiente de revisión del técnico antes de ejecutar JEV.",
+  "evidenceSha256": {
+    "evidencias/neon-resultados.json": "82e1412beffc5637a64d930d1a0828c2e21db76912255f0ede6857e387539f9b",
+    "evidencias/neon-PF-14-sesion-real.json": "f0bce6c4715969828acc06ea48a0f47e8aa06ac43aaf174eb39ab9fe64a8fb24",
+    "evidencias/neon-PF-14-sesion-verificada.json": "39aeba8ca5faa76eb9755fa56d24377c2dc4737f6dd39369726eae328b463612",
+    "evidencias/neon-PF-16-recuperacion.json": "7eb7bc9cf1758608c17026326da36c713babd527b966518511f799997e395dcd",
+    "evidencias/neon-PF-16-recuperacion-final.json": "b542be1cd702f35ac3eb9994736b2879f4134bd6139493f364da8487eaa1ead7",
+    "evidencias/neon-PF-16-recuperacion-verificada.json": "bc66a432e7a2ef435471975fe256e3f526d57660388b5945be442290b2b37036",
+    "evidencias/neon-recuperacion-neon-metadatos.json": "e6e6cd9be4d128dc54675a2acacbc6a610ea645847c25c720f0061e81cd95737",
+    "evidencias/limpieza-laboratorio.json": "d6d5191c51b1270aea6290951584dd784a0ab34709dccf3fc7a92738300c76ce"
+  },
+  "labCleanup": {
+    "evidenceFile": "evidencias/limpieza-laboratorio.json",
+    "status": "completado",
+    "detail": "Las dos ramas QA y el snapshot del ensayo fueron eliminados después de verificar los resultados."
+  }
+}

@@ -5,6 +5,8 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/icon";
 import { authClient } from "@/lib/auth-client";
 import type { Appointment, AppointmentStatus, DashboardStats, Priority } from "@/lib/types";
+import { compareAppointments } from "@/lib/metrics";
+import { allowedTransitions } from "@/lib/lifecycle";
 import { PRIORITIES, STATUSES } from "@/lib/types";
 
 type View = "despacho" | "ordenes" | "sistema";
@@ -19,7 +21,13 @@ function slug(value: string) {
 }
 
 function dateKey(date = new Date()) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  return new Intl.DateTimeFormat("sv-SE", { timeZone: "America/Monterrey", year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
+}
+function localDateTime(value: string) {
+  return `${dateKey(new Date(value))}T${new Intl.DateTimeFormat("en-GB", { timeZone: "America/Monterrey", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(value))}`;
+}
+function scheduledIso(value: string) {
+  return new Date(`${value}:00-06:00`).toISOString();
 }
 
 async function api<T>(url: string, options?: RequestInit): Promise<T> {
@@ -73,27 +81,29 @@ export function DispatchApp() {
   const filtered = appointments.filter((item) => {
     const text = `${item.folio} ${item.clientName} ${item.address} ${item.description}`.toLowerCase();
     return (!query || text.includes(query.toLowerCase())) && (!statusFilter || item.status === statusFilter) && (!priorityFilter || item.classification.priority === priorityFilter);
-  }).sort((a, b) => a.status === "Pendiente" && b.status === "Pendiente" ? priorityRank[a.classification.priority] - priorityRank[b.classification.priority] || a.createdAt.localeCompare(b.createdAt) : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }).sort(compareAppointments);
 
-  async function patchStatus(id: string, status: AppointmentStatus, scheduledAt?: string, durationMin?: number) {
+  async function patchStatus(id: string, status: AppointmentStatus, scheduledAt?: string, durationMin?: number, notes?: string) {
     setBusy(true);
+    const original = selected?.id === id ? selected : appointments.find(item => item.id === id);
+    const scheduleLocked = original?.arrivedAt || original?.status === "Completada" || original?.status === "Cancelada";
     try {
-      const result = await api<{ appointment: Appointment }>(`/api/appointments/${id}`, { method: "PATCH", body: JSON.stringify({ status, ...(scheduledAt ? { scheduledAt: new Date(scheduledAt).toISOString() } : {}), ...(durationMin ? { durationMin } : {}) }) });
-      setToast(`Orden ${result.appointment.folio}: ${status.toLowerCase()}.`);
+      const result = await api<{ appointment: Appointment }>(`/api/appointments/${id}`, { method: "PATCH", body: JSON.stringify({ status, expectedRevision: (selected?.id === id ? selected : appointments.find(item => item.id === id))?.revision, ...(notes !== undefined ? { notes } : {}), ...(!scheduleLocked && scheduledAt ? { scheduledAt: scheduledIso(scheduledAt) } : {}), ...(!scheduleLocked && durationMin ? { durationMin } : {}) }) });
+      setToast(`Cita ${result.appointment.folio}: ${status.toLowerCase()}.`);
       setSelected(result.appointment);
       await load();
-    } catch (error) { setToast(error instanceof Error ? error.message : "No fue posible actualizar"); }
+    } catch (error) { setToast(error instanceof Error ? error.message : "No fue posible actualizar"); await load().catch(() => {}); }
     finally { setBusy(false); }
   }
 
   async function reclassify(id: string) {
     setBusy(true);
     try {
-      const result = await api<{ appointment: Appointment }>(`/api/appointments/${id}/reclassify`, { method: "POST", body: "{}" });
+      const result = await api<{ appointment: Appointment }>(`/api/appointments/${id}/reclassify`, { method: "POST", body: JSON.stringify({ expectedRevision: (selected?.id === id ? selected : appointments.find(item => item.id === id))?.revision }) });
       setSelected(result.appointment);
       setToast("La clasificación se actualizó.");
       await load();
-    } catch (error) { setToast(error instanceof Error ? error.message : "No fue posible clasificar"); }
+    } catch (error) { setToast(error instanceof Error ? error.message : "No fue posible clasificar"); await load().catch(() => {}); }
     finally { setBusy(false); }
   }
 
@@ -105,7 +115,7 @@ export function DispatchApp() {
     payload.riskSignals = {
       sparks: form.has("sparks"), smoke: form.has("smoke"), burningSmell: form.has("burningSmell"), totalPowerLoss: form.has("totalPowerLoss"),
     };
-    payload.scheduledAt = new Date(String(payload.scheduledAt)).toISOString();
+    payload.scheduledAt = scheduledIso(String(payload.scheduledAt));
     payload.durationMin = Number(payload.durationMin);
     try {
       const result = await api<{ appointment: Appointment }>("/api/appointments", { method: "POST", body: JSON.stringify(payload) });
@@ -113,7 +123,7 @@ export function DispatchApp() {
       setSelected(result.appointment);
       setToast(`${result.appointment.folio} ingresó al despacho.`);
       await load();
-    } catch (error) { setToast(error instanceof Error ? error.message : "No fue posible crear la orden"); }
+    } catch (error) { setToast(error instanceof Error ? error.message : "No fue posible crear la solicitud"); }
     finally { setBusy(false); }
   }
 
@@ -123,7 +133,7 @@ export function DispatchApp() {
         <button className="rail-logo" onClick={() => setView("despacho")} aria-label="Inicio"><span>ϟ</span><small>EA</small></button>
         <nav>
           <button className={view === "despacho" ? "active" : ""} onClick={() => setView("despacho")}><Icon name="grid"/><span>Despacho</span></button>
-          <button className={view === "ordenes" ? "active" : ""} onClick={() => setView("ordenes")}><Icon name="list"/><span>Órdenes</span></button>
+          <button className={view === "ordenes" ? "active" : ""} onClick={() => setView("ordenes")}><Icon name="list"/><span>Servicios</span></button>
           <button className={view === "sistema" ? "active" : ""} onClick={() => setView("sistema")}><Icon name="settings"/><span>Sistema</span></button>
         </nav>
         <div className="rail-foot"><span>01</span><small>TÉCNICO</small></div>
@@ -131,8 +141,8 @@ export function DispatchApp() {
 
       <section className="workbench">
         <header className="workbench-header">
-            <div><p className="micro-label">ELECTROAGENDA / CENTRO DE CONTROL</p><h1>{view === "despacho" ? "Despacho" : view === "ordenes" ? "Órdenes de servicio" : "Sistema"}<sup>01</sup></h1></div>
-          <div className="header-actions"><span className="live-signal"><i/> EN LÍNEA</span><Link href="/solicitar" className="portal-link">Portal cliente <Icon name="arrow" size={16}/></Link><button className="new-order" onClick={() => setShowNew(true)}><Icon name="plus"/> Nueva orden</button><button className="session-exit" onClick={async () => { await authClient.signOut(); window.location.assign("/login"); }}>Cerrar sesión</button></div>
+            <div><p className="micro-label">ELECTROAGENDA / CENTRO DE CONTROL</p><h1>{view === "despacho" ? "Despacho" : view === "ordenes" ? "Historial de servicios" : "Sistema"}<sup>01</sup></h1></div>
+          <div className="header-actions"><span className="live-signal"><i/> EN LÍNEA</span><Link href="/solicitar" className="portal-link">Portal cliente <Icon name="arrow" size={16}/></Link><button className="new-order" onClick={() => setShowNew(true)}><Icon name="plus"/> Nueva solicitud</button><button className="session-exit" onClick={async () => { await authClient.signOut(); window.location.assign("/login"); }}>Cerrar sesión</button></div>
         </header>
 
         {view === "despacho" && <>
@@ -144,6 +154,14 @@ export function DispatchApp() {
             <div className="telemetry-engine"><span>MOTOR</span><strong className={config?.jevEnabled ? "engine-live" : ""}>{config?.jevEnabled ? "JEV" : "LOCAL"}</strong><small>{config?.jevEnabled ? config.model : "respaldo activo"}</small></div>
           </section>
 
+          {stats && <section className="kpi-panel" aria-label="Evaluación operativa">
+            <h2>Evaluación operativa</h2>
+            <p>Registros disponibles · hora de Monterrey · <a href="/api/metrics">Descargar datos de evaluación</a></p>
+            <div className="kpi-grid">
+              <article><h3>Tiempo de agendamiento</h3><strong>{stats.kpis.scheduling.averageMinutes === null ? "Sin datos" : `${stats.kpis.scheduling.averageMinutes.toFixed(2)} min`}</strong><p>Meta: máximo 19.5 min · Línea base: 30.4 min</p><p>{stats.kpis.scheduling.valid} válidos · {stats.kpis.scheduling.excluded} excluidos</p><p>Reducción: {stats.kpis.scheduling.reductionPercent?.toFixed(2) ?? "—"}%</p></article>
+              <article><h3>Puntualidad</h3><strong>{stats.kpis.punctuality.percent === null ? "Sin datos" : `${stats.kpis.punctuality.percent.toFixed(2)}%`}</strong><p>Meta: mínimo 90% · Línea base: 75%</p><p>{stats.kpis.punctuality.punctual} puntuales / {stats.kpis.punctuality.valid} visitas válidas · {stats.kpis.punctuality.excluded} excluidos</p><p>Incremento relativo: {stats.kpis.punctuality.increasePercent?.toFixed(2) ?? "—"}%</p></article>
+            </div><p>Resultados descriptivos iniciales. La puntualidad considera llegada hasta la hora de inicio acordada, sin tolerancia adicional.</p>
+          </section>}
           <div className="dispatch-layout">
             <section className="route-board">
               <header><div><p className="micro-label">SECUENCIA OPERATIVA</p><h2>Próximas conexiones</h2></div><span>{fmtLong.format(new Date())}</span></header>
@@ -157,7 +175,7 @@ export function DispatchApp() {
 
             <section className="live-order">
               <div className="order-grid-mark" aria-hidden="true"/>
-              <header><span>ORDEN ACTIVA</span><b>{active?.folio || "SIN ORDEN"}</b></header>
+              <header><span>CITA ACTIVA</span><b>{active?.folio || "SIN CITA"}</b></header>
               {active ? <>
                 <div className="live-priority"><PriorityMark value={active.classification.priority}/><span>{active.status}</span></div>
                 <h2>{active.clientName}</h2>
@@ -167,8 +185,8 @@ export function DispatchApp() {
                   <div><dt><Icon name="pin" size={17}/> Ubicación</dt><dd>{active.address}</dd></div>
                   <div><dt><Icon name="spark" size={17}/> Servicio</dt><dd>{active.classification.serviceType}</dd></div>
                 </dl>
-                <div className="live-actions"><button onClick={() => patchStatus(active.id, "En camino")} disabled={busy}>Iniciar ruta <Icon name="arrow" size={18}/></button><button onClick={() => setSelected(active)}>Abrir orden</button></div>
-              </> : <p className="no-live-order">La agenda no tiene una orden activa.</p>}
+                <div className="live-actions"><button onClick={() => patchStatus(active.id, active.status === "En servicio" ? "Completada" : active.status === "En camino" ? "En servicio" : "En camino")} disabled={busy}>{active.status === "En servicio" ? "Completar servicio" : active.status === "En camino" ? "Registrar llegada" : "Iniciar ruta"} <Icon name="arrow" size={18}/></button><button onClick={() => setSelected(active)}>Abrir cita</button></div>
+              </> : <p className="no-live-order">La agenda no tiene una cita activa.</p>}
             </section>
           </div>
 
@@ -189,7 +207,7 @@ export function DispatchApp() {
             <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="">Cualquier estado</option>{STATUSES.map((status) => <option key={status}>{status}</option>)}</select>
             <select value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value)}><option value="">Cualquier prioridad</option>{PRIORITIES.map((priority) => <option key={priority}>{priority}</option>)}</select>
           </div>
-          <div className="archive-head"><span>ORDEN / SERVICIO</span><span>CLIENTE</span><span>VENTANA</span><span>LECTURA</span><span>ESTADO</span><span/></div>
+          <div className="archive-head"><span>SOLICITUD / SERVICIO</span><span>CLIENTE</span><span>VENTANA</span><span>LECTURA</span><span>ESTADO</span><span/></div>
           <div className="archive-list">
             {filtered.map((item) => <button key={item.id} onClick={() => setSelected(item)}>
               <span><b>{item.folio}</b><small>{item.classification.serviceType}</small></span><span><b>{item.clientName}</b><small>{item.address}</small></span><span><b>{item.scheduledAt ? fmtDay.format(new Date(item.scheduledAt)) : "Por asignar"}</b><small>{item.scheduledAt ? `${fmtTime.format(new Date(item.scheduledAt))} · ${item.durationMin ?? "—"} min` : `${item.preferredSlots.length} preferencias`}</small></span><span><PriorityMark value={item.classification.priority}/><small>{item.classification.serviceType}</small></span><StatusMark value={item.status}/><Icon name="arrow"/>
@@ -213,16 +231,16 @@ export function DispatchApp() {
         </section>}
       </section>
 
-      {selected && <div className="overlay" onMouseDown={(event) => event.target === event.currentTarget && setSelected(null)}><aside className="order-drawer">
+      {selected && <div key={selected.id + ":" + selected.revision} className="overlay" onMouseDown={(event) => event.target === event.currentTarget && setSelected(null)}><aside className="order-drawer">
         <button className="drawer-close" onClick={() => setSelected(null)}><Icon name="close"/></button>
         <p className="micro-label">EXPEDIENTE / {selected.folio}</p><h2>{selected.clientName}</h2><div className="drawer-marks"><PriorityMark value={selected.classification.priority}/><StatusMark value={selected.status}/></div>
         <section><h3>Reporte</h3><p>{selected.description}</p></section>
         <section className="drawer-grid"><div><span>HORARIO ASIGNADO</span><strong>{selected.scheduledAt ? <>{fmtLong.format(new Date(selected.scheduledAt))}<br/>{fmtTime.format(new Date(selected.scheduledAt))}</> : "Pendiente"}</strong></div><div><span>DURACIÓN</span><strong>{selected.durationMin ? `${selected.durationMin} min` : "Por definir"}</strong></div><div><span>TIPO DE SERVICIO</span><strong>{selected.classification.serviceType}</strong></div><div><span>ORIGEN DE CLASIFICACIÓN</span><strong>{selected.classification.source}</strong></div><div className="wide"><span>PREFERENCIAS DEL CLIENTE</span><strong>{selected.preferredSlots.map((slot) => `${fmtDay.format(new Date(slot))} ${fmtTime.format(new Date(slot))}`).join(" · ") || "Sin preferencias"}</strong></div></section>
         <section><h3>Contacto y ubicación</h3><p>{selected.phone}<br/>{selected.email || "Sin correo"}<br/>{selected.address}</p></section>
-        <div className="drawer-controls"><label>Fecha y hora asignadas<input type="datetime-local" id="drawer-scheduled" defaultValue={selected.scheduledAt?.slice(0, 16) || ""}/></label><label>Duración estimada<select id="drawer-duration" defaultValue={selected.durationMin || "60"}><option value="30">30 minutos</option><option value="60">60 minutos</option><option value="90">90 minutos</option><option value="120">120 minutos</option></select></label><select defaultValue={selected.status} id="drawer-status">{STATUSES.map((status) => <option key={status}>{status}</option>)}</select><button disabled={busy} onClick={() => { const scheduled = (document.querySelector("#drawer-scheduled") as HTMLInputElement).value; const requestedStatus = (document.querySelector("#drawer-status") as HTMLSelectElement).value as AppointmentStatus; const duration = Number((document.querySelector("#drawer-duration") as HTMLSelectElement).value); patchStatus(selected.id, scheduled && requestedStatus === "Pendiente" ? "Confirmada" : requestedStatus, scheduled || undefined, duration); }}>{selected.status === "Pendiente" ? "Asignar y confirmar" : "Guardar cambios"}</button><button className="secondary" disabled={busy} onClick={() => reclassify(selected.id)}>Reclasificar</button></div>
+        <section><h3>Seguimiento</h3><p>Primera confirmación: {selected.firstConfirmedAt ? new Date(selected.firstConfirmedAt).toLocaleString("es-MX", { timeZone: "America/Monterrey" }) : "Sin registro verificable"}<br/>Llegada: {selected.arrivedAt ? new Date(selected.arrivedAt).toLocaleString("es-MX", { timeZone: "America/Monterrey" }) : "Sin registrar"}</p><p>Seleccionar «En servicio» registra la llegada en ese momento. Hazlo al llegar al domicilio.</p></section><div className="drawer-controls"><label>Observaciones<textarea id="drawer-notes" rows={4} maxLength={1000} defaultValue={selected.notes}/></label><label>Fecha y hora asignadas<input type="datetime-local" id="drawer-scheduled" disabled={Boolean(selected.arrivedAt) || ["Completada", "Cancelada"].includes(selected.status)} defaultValue={selected.scheduledAt ? localDateTime(selected.scheduledAt) : ""}/></label><label>Duración estimada<select id="drawer-duration" disabled={Boolean(selected.arrivedAt) || ["Completada", "Cancelada"].includes(selected.status)} defaultValue={selected.durationMin || "60"}><option value="30">30 minutos</option><option value="60">60 minutos</option><option value="90">90 minutos</option><option value="120">120 minutos</option></select></label><select defaultValue={selected.status} id="drawer-status">{allowedTransitions[selected.status].map((status) => <option key={status}>{status}</option>)}</select><button disabled={busy} onClick={() => { const scheduled = (document.querySelector("#drawer-scheduled") as HTMLInputElement).value; const requestedStatus = (document.querySelector("#drawer-status") as HTMLSelectElement).value as AppointmentStatus; const duration = Number((document.querySelector("#drawer-duration") as HTMLSelectElement).value); patchStatus(selected.id, scheduled && requestedStatus === "Pendiente" ? "Confirmada" : requestedStatus, scheduled || undefined, duration, (document.querySelector("#drawer-notes") as HTMLTextAreaElement).value); }}>{selected.status === "Pendiente" ? "Asignar y confirmar" : "Guardar cambios"}</button><button className="secondary" disabled={busy} onClick={() => reclassify(selected.id)}>Reclasificar</button></div>
       </aside></div>}
 
-      {showNew && <div className="overlay" onMouseDown={(event) => event.target === event.currentTarget && setShowNew(false)}><aside className="order-drawer new-drawer"><button className="drawer-close" onClick={() => setShowNew(false)}><Icon name="close"/></button><p className="micro-label">INGRESO MANUAL</p><h2>Nueva orden</h2><OrderForm busy={busy} onSubmit={createAppointment}/></aside></div>}
+      {showNew && <div className="overlay" onMouseDown={(event) => event.target === event.currentTarget && setShowNew(false)}><aside className="order-drawer new-drawer"><button className="drawer-close" onClick={() => setShowNew(false)}><Icon name="close"/></button><p className="micro-label">INGRESO MANUAL</p><h2>Nueva solicitud</h2><OrderForm busy={busy} onSubmit={createAppointment}/></aside></div>}
       {toast && <div className="control-toast">{toast}</div>}
     </main>
   );

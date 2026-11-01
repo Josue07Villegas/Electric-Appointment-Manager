@@ -7,7 +7,7 @@ import type { Appointment } from "@/lib/types";
 type Slot = { value: string; label: string };
 
 function dateKey(date = new Date()) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  return new Intl.DateTimeFormat("sv-SE", { timeZone: "America/Monterrey", year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
 }
 
 export function BookingForm() {

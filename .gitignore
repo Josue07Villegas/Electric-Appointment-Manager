@@ -29,3 +29,6 @@ pnpm-debug.log*
 Thumbs.db
 .vercel
 .env*
+
+# Ejecuciones temporales de laboratorio
+artifacts/

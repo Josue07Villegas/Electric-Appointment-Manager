@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-31T07:13:51.686Z",
+  "project": "restless-fire-58809586",
+  "scope": "Recursos temporales creados para PF-01 a PF-16; producción excluida",
+  "actions": [
+    {
+      "type": "branch",
+      "id": "br-long-wind-b4cy5hmj",
+      "name": "qa-pf16-recuperada-20261031",
+      "status": "eliminada"
+    },
+    {
+      "type": "branch",
+      "id": "br-holy-voice-b4p1w6js",
+      "name": "qa-pf-20261031-0659",
+      "status": "eliminada"
+    },
+    {
+      "type": "snapshot",
+      "id": "snap-aged-bonus-b46kylud",
+      "status": "eliminado"
+    }
+  ]
+}

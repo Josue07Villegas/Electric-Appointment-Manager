@@ -265,3 +265,9 @@ input, select, textarea { color: var(--ink); }
   .booking-nav { height: 66px; }.booking-layout { min-height: calc(100vh - 66px); }.booking-manifesto { padding: 45px 22px; }.booking-manifesto h1 { font-size: 51px; }.manifesto-copy { font-size: 12px; }.service-facts { grid-template-columns: 1fr 1fr; }.service-facts div:last-child { grid-column: 1 / -1; }.booking-form-panel { padding: 45px 22px 70px; }.public-fields { grid-template-columns: 1fr; }.public-fields .full { grid-column: auto; }.date-field { grid-template-columns: 1fr; }.public-slots { grid-template-columns: repeat(3, 1fr); }.booking-success { min-height: calc(100vh - 66px); }.booking-success h2 { font-size: 40px; }.booking-success dl { grid-template-columns: 1fr; }
   .staff-login-panel { min-height: 510px; }
 }
+
+.kpi-panel { margin: 24px 0; padding: 24px; border: 1px solid #5555; border-radius: 12px; }
+.kpi-panel h2, .kpi-panel h3 { margin: 0 0 12px; }
+.kpi-panel p { margin: 10px 0; font-size: 14px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin: 20px 0; }
+.kpi-grid strong { font-size: 28px; }

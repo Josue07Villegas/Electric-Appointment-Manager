@@ -1,0 +1,29 @@
+{
+  "id": "PF-16",
+  "startedAt": "2026-10-31T07:04:46.228Z",
+  "sourceBranch": "br-holy-voice-b4p1w6js",
+  "snapshot": "snap-aged-bonus-b46kylud",
+  "status": "aprobado",
+  "procedure": "Snapshot administrado de Neon, eliminación controlada de un registro sintético y restauración a otra rama sin finalizar sobre la rama de origen.",
+  "records": [],
+  "before": {
+    "count": 17,
+    "sha256": "a68de934d1ea6c1bdf6b0034d2255b850c11b8cfaf5cc6c774f9c68d4180bac2",
+    "targetId": "1b6b8e22-8211-40bc-a050-968e803e7edd"
+  },
+  "deletionVerified": true,
+  "finishedAt": "2026-10-31T07:07:07.088Z",
+  "resumedAt": "2026-10-31T07:07:04.587Z",
+  "priorAttempt": "PF-16-recuperacion-final.json",
+  "restoredBranch": "br-long-wind-b4cy5hmj",
+  "after": {
+    "count": 17,
+    "sha256": "a68de934d1ea6c1bdf6b0034d2255b850c11b8cfaf5cc6c774f9c68d4180bac2",
+    "targetRecovered": true,
+    "overlapConstraint": {
+      "conname": "appointments_scheduled_no_overlap",
+      "definition": "EXCLUDE USING gist (tsrange((scheduled_at AT TIME ZONE 'UTC'::text), ((scheduled_at AT TIME ZONE 'UTC'::text) + make_interval(mins => duration_min)), '[)'::text) WITH &&) WHERE (((status = ANY (ARRAY['Confirmada'::text, 'En camino'::text, 'En servicio'::text])) AND (scheduled_at IS NOT NULL) AND (duration_min IS NOT NULL)))"
+    }
+  },
+  "observed": "Se recuperaron todos los registros del snapshot en otra rama con la restricción de intervalos conservada; no se restauró ni modificó producción."
+}
