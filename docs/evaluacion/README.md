@@ -33,3 +33,9 @@ Para PostgreSQL, el controlador exige `TEST_DATABASE_URL`, `TEST_NEON_PROJECT_ID
 El ensayo de recuperación usa exclusivamente datos sintéticos; conserva el primer intento y admite completar la verificación con `resumeFrom`. La caducidad o eliminación de recursos de laboratorio no altera la evidencia local.
 
 Los dos entornos QA y el snapshot se eliminaron al concluir. `evidencias/limpieza-laboratorio.json` conserva la confirmación. El informe consolidado enlaza los archivos originales y sus hashes SHA-256.
+
+## Complemento de PF-03
+
+El 31 de octubre de 2026, en hora de Monterrey, se comprobó el retiro del permiso de una cuenta sintética existente en producción. Se agregó temporalmente su correo conservando el correo del personal, se desplegó, se creó la cuenta y se verificó acceso. Tras retirar únicamente el correo sintético y desplegar otra vez, el inicio y la sesión respondieron 200, `/api/appointments` respondió 401 sin lista de citas y `/` redirigió con 307 a `/login`. Se cerraron las sesiones del ensayo; la cuenta permanece para repetición manual. No se modificaron citas.
+
+`complemento-pf03-2026-10-31.json` identifica los dos despliegues y los hashes de las evidencias de `evidencias/complemento-pf03`. El verificador `scripts/qa/staff-revocation.cjs` permite contrastar ambas etapas con credenciales locales, sin registrarlas en la evidencia. Esta comprobación no equivale a la constancia de revisión de pantallas del personal.

@@ -1,0 +1,7 @@
+{
+  "startedAt": "2026-11-01T04:38:06.944Z",
+  "endpoint": "/api/auth/sign-up/email",
+  "status": 200,
+  "deployment": "dpl_827AcMGjHGkd7zSY899qdT4Hug4V",
+  "syntheticAccountCreated": true
+}

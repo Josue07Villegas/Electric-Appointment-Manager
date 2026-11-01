@@ -1,0 +1,24 @@
+{
+  "id": "Complemento PF-03",
+  "status": "aprobado",
+  "startedAt": "2026-11-01T04:38:07.346Z",
+  "finishedAt": "2026-11-01T04:39:58.420Z",
+  "domain": "https://electroagenda.vercel.app",
+  "account": "Cuenta sintética existente; credenciales excluidas de la evidencia",
+  "staffConfiguration": "Correo del personal conservado; cuenta sintética retirada de STAFF_EMAILS",
+  "initialDeployment": {
+    "id": "dpl_827AcMGjHGkd7zSY899qdT4Hug4V",
+    "url": "electroagenda-gn08hcp38-jsa-07.vercel.app"
+  },
+  "finalDeployment": {
+    "id": "dpl_GfMnmDGgubJvBry5UvWsd4cMy3de",
+    "url": "electroagenda-dk26shj91-jsa-07.vercel.app"
+  },
+  "result": "Autenticación 200 y sesión activa 200; consulta administrativa 401 sin lista de citas; despacho 307 hacia /login.",
+  "execution": "Comprobación automatizada de rutas HTTP reales; revisión manual del usuario pendiente.",
+  "evidenceSha256": {
+    "antes-retiro.json": "83e52af4da8b2b0aa925f2bc20e3b3d5e92be31cc6142eed8942c37ad982c5c8",
+    "despues-retiro.json": "d12d1217e908d6e6290c284c13de493c5c9d63dc1966aadf2be6d810cc60ee24",
+    "registro.json": "0ca224d368ef2fe6b85da000c7a116d0b5766194baeb7e9328a8668aa5ab8fc8"
+  }
+}
